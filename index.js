@@ -4,6 +4,7 @@ import morgan from "morgan";
 import http from 'http';
 import dotenv from 'dotenv';
 import loginRoutes from './src/routes/login.routes.js';
+import seguridadRoutes from './src/routes/seguridad.routes.js';
 import logger from './src/middlewares/logReq.js';
 import {errorHandler as error} from './src/middlewares/errorHandler.js';
 import {tokenAuth} from './src/middlewares/seguridadToken.js';
@@ -18,10 +19,11 @@ app.use(cors());
 app.use(express.json());
 app.use(tokenAuth);
 
-// app.use(logger);//para activar el log de las consultas a la API
+app.use(logger);//para activar el log de las consultas a la API
 
 //ROUTES
 app.use(loginRoutes);
+app.use(seguridadRoutes);
 
 app.get('/login',async(req,res)=>{
   // const sql =  neon(process.env.DATABASE_URL);
