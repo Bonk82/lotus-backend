@@ -18,13 +18,15 @@ export const listarUsuarios  = async  (datos, respuesta, next) => {
 };
 
 export const crudUsuario   = async  (datos, respuesta, next) => {
-  const {operacion,id_usuario,fid_rol,cuenta,pass,tipo_acceso,ci,fecha_nacimeinto,nombres,paterno,materno,correo,telefonos,estado} = datos.query;
+  let {operacion,id_usuario,fid_rol,fid_sucursal,cuenta,pass,tipo_acceso,ci,fecha_nacimeinto,nombres,paterno,materno,correo,telefonos,estado} = datos.query;
 
   let hash = null
   if(pass) hash = crypto.createHash('sha256').update(pass).digest('hex');
   if(!pass && operacion == 'I') hash = crypto.createHash('sha256').update(`${ci}#${paterno}*`).digest('hex');
+  if(!cuenta && operacion == 'I') cuenta = (`${nombres.split(' ')[0]}.${paterno}`).toUpperCase();
+  if(fid_sucursal && operacion) tipo_acceso = 'INTERNO';
 
-  let q = `select * from seguridad.pra_crud_usuario('${operacion}',${id_usuario},${fid_rol},'${cuenta}','${hash}','${tipo_acceso}','${ci}','${fecha_nacimeinto}','${nombres}','${paterno}','${materno}','${correo}','${telefonos}','${estado}');`;
+  let q = `select * from seguridad.pra_crud_usuario('${operacion}',${id_usuario},${fid_rol},${fid_sucursal},'${cuenta}','${hash}','${tipo_acceso}','${ci}','${fecha_nacimeinto}','${nombres}','${paterno}','${materno}','${correo}','${telefonos}','${estado}');`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 

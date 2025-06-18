@@ -25,7 +25,7 @@ export const login = async (datos, respuesta, next) => {
   }
 }
 
-export const extraUsuario   = async  (datos, respuesta, next) => {
+export const controlUsuario   = async  (datos, respuesta, next) => {
   const {operacion,id_usuario,estado,fid_sucursal} = datos.query;
 
   let q = ``
