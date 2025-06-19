@@ -14,7 +14,7 @@ export const login = async (datos, respuesta, next) => {
     const consulta = await da(q);
     console.log("consulta", consulta);
     if(consulta[0]){
-      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_conexion,rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal}, process.env.TOKEN_PWD);
+      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal}, process.env.TOKEN_PWD);
       // consulta.push({ruta:newToken})
     }else{
       return respuesta.status(401).json({error: 'Usuario o contraseña incorrectos'});
