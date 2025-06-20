@@ -3,18 +3,19 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 
 export const login = async (datos, respuesta, next) => {
-  const {user,pass,id} = datos.query
+  const {operacion,user,pass,id,new_pass} = datos.query
 
   let hash = crypto.createHash('sha256').update(pass).digest('hex');
+  let new_hash = crypto.createHash('sha256').update(new_pass).digest('hex');
 
   console.log("encriptado", hash);
-  var q =`select * from seguridad.pr_login ('${user}','${hash}',${id});`;
+  var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}',${id},'${new_hash}');`;
   let newToken = null;
   try {
     const consulta = await da(q);
     console.log("consulta", consulta);
     if(consulta[0]){
-      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal}, process.env.TOKEN_PWD);
+      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal,cuenta:user}, process.env.TOKEN_PWD);
       // consulta.push({ruta:newToken})
     }else{
       return respuesta.status(401).json({error: 'Usuario o contraseña incorrectos'});
