@@ -1,15 +1,15 @@
 import {consulta as da} from '../connection/connexPostgres.js'
-import crypto from 'crypto'
+import crypto, { hash } from 'crypto'
 import jwt from 'jsonwebtoken'
 
 export const login = async (datos, respuesta, next) => {
   const {operacion,user,pass,id,new_pass} = datos.query
 
-  let hash = crypto.createHash('sha256').update(pass).digest('hex');
-  let new_hash = crypto.createHash('sha256').update(new_pass).digest('hex');
+  let hash = pass ? crypto.createHash('sha256').update(pass).digest('hex') : null;
+  let new_hash = new_pass ? crypto.createHash('sha256').update(new_pass).digest('hex') : null;
 
   console.log("encriptado", hash);
-  var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}',${id},'${new_hash}');`;
+  var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}',${id||null},'${new_hash}');`;
   let newToken = null;
   try {
     const consulta = await da(q);
