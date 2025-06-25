@@ -127,3 +127,20 @@ export const crudSucursal  = async  (datos, respuesta, next) => {
     next(error)
   }
 };
+
+//rol_menu
+export const listarMenu = async  (datos, respuesta, next) => {
+  const {opcion,id} = datos.query
+  let q = ''
+  if(opcion == 'T') q = `select * from seguridad.rol_menu rm`;
+  if(opcion != 'T') q = `select * from seguridad.rol_menu rm where ${opcion} = '${id}';`;
+  if(opcion == 'ROL') q = `select m.id_menu,m.descripcion,m.ruta from seguridad.rol_menu rm
+      join seguridad.menu m on rm.fid_menu = m.id_menu where rm.fid_rol =${id};`;
+
+  try {
+    const consulta = await da.consulta(q);
+    respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
