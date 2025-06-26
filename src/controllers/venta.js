@@ -4,8 +4,8 @@ import * as da from '../connection/connexPostgres.js'
 export const listarComponentes  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.componente c`;
-  if(opcion != 'T') q = `select * from venta.componente c where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.componente c where c.activo=1`;
+  if(opcion != 'T') q = `select * from venta.componente c where c.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -34,8 +34,8 @@ export const crudComponente   = async  (datos, respuesta, next) => {
 export const listarControlCajas  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.control_caja cc `;
-  if(opcion != 'T') q = `select * from venta.control_caja cc where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.control_caja cc where cc.activo=1`;
+  if(opcion != 'T') q = `select * from venta.control_caja cc where cc.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -64,8 +64,8 @@ export const crudControlCaja  = async  (datos, respuesta, next) => {
 export const listarIngresos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.ingreso i `;
-  if(opcion != 'T') q = `select * from venta.ingreso i where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.ingreso i where i.activo=1`;
+  if(opcion != 'T') q = `select * from venta.ingreso i where i.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -94,8 +94,8 @@ export const crudIngreso  = async  (datos, respuesta, next) => {
 export const listarIngresoDetalles  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.ingreso_detalle id `;
-  if(opcion != 'T') q = `select * from venta.ingreso_detalle id where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.ingreso_detalle id where id.activo=1`;
+  if(opcion != 'T') q = `select * from venta.ingreso_detalle id where id.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -124,8 +124,8 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
 export const listarPedidos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.pedido p`;
-  if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.pedido p where p.activo=1`;
+  if(opcion != 'T') q = `select * from venta.pedido p where p.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -154,8 +154,8 @@ export const crudPedido = async  (datos, respuesta, next) => {
 export const listarPedidoDetalles  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.pedido_detalle pd`;
-  if(opcion != 'T') q = `select * from venta.pedido_detalle pd where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.pedido_detalle pd where pd.activo=`;
+  if(opcion != 'T') q = `select * from venta.pedido_detalle pd where pd.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -184,8 +184,8 @@ export const crudPedidoDetalle = async  (datos, respuesta, next) => {
 export const listarProductos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.producto p `;
-  if(opcion != 'T') q = `select * from venta.producto p where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.producto p where p.activo=1`;
+  if(opcion != 'T') q = `select * from venta.producto p where p.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -214,8 +214,8 @@ export const crudProducto = async  (datos, respuesta, next) => {
 export const listarPromociones  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.promocion p`;
-  if(opcion != 'T') q = `select * from venta.promocion p where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.promocion p where p.activo=1`;
+  if(opcion != 'T') q = `select * from venta.promocion p where p.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -244,8 +244,8 @@ export const crudPromocion= async  (datos, respuesta, next) => {
 export const listarProveedores  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.proveedor p`;
-  if(opcion != 'T') q = `select * from venta.proveedor p where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.proveedor p where p.activo=1`;
+  if(opcion != 'T') q = `select * from venta.proveedor p where p.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
