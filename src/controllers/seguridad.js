@@ -42,8 +42,8 @@ export const crudUsuario   = async  (datos, respuesta, next) => {
 export const listarClasificador  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from seguridad.clasificador c`;
-  if(opcion != 'T') q = `select * from seguridad.clasificador c where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from seguridad.clasificador c where c.activo = 1;`;
+  if(opcion != 'T') q = `select * from seguridad.clasificador c where c.activo = 1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -102,8 +102,8 @@ export const crudClasificador   = async  (datos, respuesta, next) => {
 export const listarSucursales = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from seguridad.sucursal s`;
-  if(opcion != 'T') q = `select * from seguridad.sucursal s where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from seguridad.sucursal s where s.activo = 1`;
+  if(opcion != 'T') q = `select * from seguridad.sucursal s where s.activo = 1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
