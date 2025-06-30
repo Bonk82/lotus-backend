@@ -134,7 +134,7 @@ export const listarMenu = async  (datos, respuesta, next) => {
   let q = ''
   if(opcion == 'T') q = `select * from seguridad.rol_menu rm`;
   if(opcion != 'T') q = `select * from seguridad.rol_menu rm where ${opcion} = '${id}';`;
-  if(opcion == 'ROL') q = `select m.id_menu,m.descripcion,m.ruta from seguridad.rol_menu rm
+  if(opcion == 'ROL') q = `select m.id_menu,m.descripcion,m.ruta,m.nivel from seguridad.rol_menu rm
       join seguridad.menu m on rm.fid_menu = m.id_menu where rm.fid_rol =${id};`;
 
   try {
