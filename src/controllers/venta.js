@@ -16,9 +16,9 @@ export const listarComponentes  = async  (datos, respuesta, next) => {
 };
 
 export const crudComponente   = async  (datos, respuesta, next) => {
-  const {operacion,id_componente,fid_producto,unidad,cantidad,usuario_registro} = datos.query;
+  const {operacion,id_componente,fid_producto_main,fid_producto,unidad,cantidad,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_componente('${operacion}',${id_componente},${fid_producto},'${unidad}',${cantidad},${usuario_registro});`;
+  let q = `select * from venta.pra_crud_componente('${operacion}',${id_componente},${fid_producto_main},${fid_producto},'${unidad}',${cantidad},${usuario_registro});`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
@@ -46,9 +46,9 @@ export const listarControlCajas  = async  (datos, respuesta, next) => {
 };
 
 export const crudControlCaja  = async  (datos, respuesta, next) => {
-  const {operacion,id_control_caja,fid_saucursal,fecha,fid_usuario_inicio,inicio,monto_inicio,fid_usuario_cierre,cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,observaciones,estado} = datos.query;
+  const {operacion,id_control_caja,fid_saucursal,fid_usuario_inicio,monto_inicio,fid_usuario_cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,observaciones,estado} = datos.query;
 
-  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_saucursal},'${fecha}',${fid_usuario_inicio},'${inicio}',${monto_inicio},${fid_usuario_cierre},'${cierre}',${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},'${observaciones}','${estado}');`;
+  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_saucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},'${observaciones}','${estado}');`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
