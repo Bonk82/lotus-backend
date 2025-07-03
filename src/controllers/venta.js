@@ -198,6 +198,11 @@ export const listarProductos  = async  (datos, respuesta, next) => {
       ) det
     )componentes
     from venta.producto p where p.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'PEDIDO') q = `select p.id_producto ,p.descripcion,p.unidad,p.grupo
+      ,sp.id_sucursal_producto,sp.existencia,sp.precio,sp.promocion
+      from venta.producto p join venta.sucursal_producto sp
+      on sp.fid_producto =p.id_producto and sp.fid_sucursal = ${id}
+      where p.tipo_pruducto ='VENTA' and activo =1;`;
 
   try {
     const consulta = await da.consulta(q);
