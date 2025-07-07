@@ -46,9 +46,9 @@ export const listarControlCajas  = async  (datos, respuesta, next) => {
 };
 
 export const crudControlCaja  = async  (datos, respuesta, next) => {
-  const {operacion,id_control_caja,fid_saucursal,fid_usuario_inicio,monto_inicio,fid_usuario_cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,observaciones,estado} = datos.query;
+  const {operacion,id_control_caja,fid_sucursal,fid_usuario_inicio,monto_inicio,fid_usuario_cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,observaciones,estado} = datos.query;
 
-  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_saucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},'${observaciones}','${estado}');`;
+  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_sucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},'${observaciones}','${estado}');`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
@@ -64,8 +64,14 @@ export const crudControlCaja  = async  (datos, respuesta, next) => {
 export const listarIngresos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.ingreso i where i.activo=1`;
-  if(opcion != 'T') q = `select * from venta.ingreso i where i.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
+    from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
+    join venta.proveedor p on p.id_proveedor =i.fid_proveedor
+    where i.activo=1;`;
+  if(opcion != 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
+    from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
+    join venta.proveedor p on p.id_proveedor =i.fid_proveedor
+    where i.activo=1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
@@ -76,9 +82,9 @@ export const listarIngresos  = async  (datos, respuesta, next) => {
 };
 
 export const crudIngreso  = async  (datos, respuesta, next) => {
-  const {operacion,id_ingreso,fid_proveedor,fid_saucursal,motivo,fecha_ingreso,usuario_registro} = datos.query;
+  const {operacion,id_ingreso,fid_proveedor,fid_sucursal,motivo,fecha_ingreso,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_ingreso('${operacion}',${id_ingreso},${fid_proveedor},${fid_saucursal},'${motivo}','${fecha_ingreso}',${usuario_registro});`;
+  let q = `select * from venta.pra_crud_ingreso('${operacion}',${id_ingreso},${fid_proveedor},${fid_sucursal},'${motivo}','${fecha_ingreso}',${usuario_registro});`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
@@ -122,10 +128,15 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
 
 //pedido
 export const listarPedidos  = async  (datos, respuesta, next) => {
-  const {opcion,id} = datos.query
+  const {opcion,id,id_sucursal} = datos.query
   let q = ''
   if(opcion == 'T') q = `select * from venta.pedido p where p.activo=1`;
   if(opcion != 'T') q = `select * from venta.pedido p where p.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'PEDIDOS') q = `select p.*,pd.*,pr.descripcion from venta.pedido p
+    join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
+    join venta.pedido_detalle pd on pd.fid_pedido =p.id_pedido
+    join venta.producto pr on pr.id_producto =pd.fid_producto
+    where p.activo=1 and cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal};`;
 
   try {
     const consulta = await da.consulta(q);
@@ -190,19 +201,19 @@ export const listarProductos  = async  (datos, respuesta, next) => {
         where c.fid_producto_main = p.id_producto and c.activo =1 
       ) det
     )componentes
-    from venta.producto p where p.activo=1;`;
+    from venta.producto p where p.activo=1 order by p.descripcion;`;
   if(opcion != 'T') q = `select p.*,(select array_to_json(array_agg(row_to_json(det)))
       from (select pd.descripcion item, c.cantidad , c.unidad ,c.id_componente
         from venta.componente c join venta.producto pd on c.fid_producto =pd.id_producto 
         where c.fid_producto_main = p.id_producto and c.activo =1 
       ) det
     )componentes
-    from venta.producto p where p.activo=1 and ${opcion} = '${id}';`;
+    from venta.producto p where p.activo=1 and ${opcion} = '${id}' order by p.descripcion;`;
   if(opcion == 'PEDIDO') q = `select p.id_producto ,p.descripcion,p.unidad,p.grupo
       ,sp.id_sucursal_producto,sp.existencia,sp.precio,sp.promocion
       from venta.producto p join venta.sucursal_producto sp
       on sp.fid_producto =p.id_producto and sp.fid_sucursal = ${id}
-      where p.tipo_pruducto ='VENTA' and activo =1;`;
+      where p.tipo_producto ='VENTA' and activo =1 order by p.grupo, p.descripcion;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -213,9 +224,9 @@ export const listarProductos  = async  (datos, respuesta, next) => {
 };
 
 export const crudProducto = async  (datos, respuesta, next) => {
-  const {operacion,id_producto,codigo,descripcion,unidad,capacidad,existencia,precio,promocion,pedido_minimo,tipo_pruducto,grupo,usuario_registro} = datos.query;
+  const {operacion,id_producto,codigo,descripcion,unidad,capacidad,pedido_minimo,tipo_producto,grupo,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_producto('${operacion}',${id_producto},'${codigo}','${descripcion}','${unidad}','${capacidad}',${existencia},${precio},${promocion},${pedido_minimo},'${tipo_pruducto}','${grupo}',${usuario_registro});`;
+  let q = `select * from venta.pra_crud_producto('${operacion}',${id_producto},'${codigo}','${descripcion}','${unidad}','${capacidad}',${pedido_minimo},'${tipo_producto}','${grupo}',${usuario_registro});`;
 
   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
 

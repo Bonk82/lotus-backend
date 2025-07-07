@@ -3,19 +3,19 @@ import crypto, { hash } from 'crypto'
 import jwt from 'jsonwebtoken'
 
 export const login = async (datos, respuesta, next) => {
-  const {operacion,user,pass,id,new_pass} = datos.query
+  const {operacion,user,pass,new_pass} = datos.query
 
   let hash = pass ? crypto.createHash('sha256').update(pass).digest('hex') : null;
   let new_hash = new_pass ? crypto.createHash('sha256').update(new_pass).digest('hex') : null;
 
   console.log("encriptado", hash);
-  var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}',${id||null},'${new_hash}');`;
+  var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}','${new_hash}');`;
   let newToken = null;
   try {
     const consulta = await da(q);
-    console.log("consulta", consulta);
+    console.log("del login", consulta);
     if(consulta[0]){
-      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].fid_sucursal,cuenta:user}, process.env.TOKEN_PWD);
+      newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,id_rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal,cuenta:user, rol:consulta[0].rol}, process.env.TOKEN_PWD);
       // consulta.push({ruta:newToken})
     }else{
       return respuesta.status(401).json({error: 'Usuario o contraseña incorrectos'});
