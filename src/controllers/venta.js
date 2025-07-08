@@ -34,8 +34,17 @@ export const crudComponente   = async  (datos, respuesta, next) => {
 export const listarControlCajas  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.control_caja cc`;
-  if(opcion != 'T') q = `select * from venta.control_caja cc where ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select cc.*,ui.cuenta usuario_inicio,s.nombre sucursal, uc.cuenta usuario_cierre
+    from venta.control_caja cc
+    join seguridad.usuario ui on ui.id_usuario =cc.fid_usuario_inicio 
+    join seguridad.sucursal s on s.id_sucursal =cc.fid_sucursal
+    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre;`;
+  if(opcion != 'T') q = `
+    select cc.*,ui.cuenta usuario_inicio,s.nombre sucursal, uc.cuenta usuario_cierre
+    from venta.control_caja cc
+    join seguridad.usuario ui on ui.id_usuario =cc.fid_usuario_inicio 
+    join seguridad.sucursal s on s.id_sucursal =cc.fid_sucursal
+    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre where ${opcion} = '${id}';`;
   if(opcion == 'ACTIVA') q = `select * from venta.control_caja cc where cc.estado = 'APERTURA' and cc.fid_sucursal = ${id} ;`;
 
   try {
@@ -243,8 +252,14 @@ export const crudProducto = async  (datos, respuesta, next) => {
 export const listarPromociones  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.promocion p where p.activo=1`;
-  if(opcion != 'T') q = `select * from venta.promocion p where p.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select p.*,s.nombre sucursal,pr.descripcion producto
+    from venta.promocion p join seguridad.sucursal s on s.id_sucursal =p.fid_sucursal
+    join venta.producto pr on pr.id_producto =p.fid_producto
+    where p.activo=1 and pr.activo =1;`;
+  if(opcion != 'T') q = `select p.*,s.nombre sucursal,pr.descripcion producto
+    from venta.promocion p join seguridad.sucursal s on s.id_sucursal =p.fid_sucursal
+    join venta.producto pr on pr.id_producto =p.fid_producto
+    where p.activo=1 and pr.activo =1 and ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
