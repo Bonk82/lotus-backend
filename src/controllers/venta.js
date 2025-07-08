@@ -34,8 +34,9 @@ export const crudComponente   = async  (datos, respuesta, next) => {
 export const listarControlCajas  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.control_caja cc where cc.activo=1`;
-  if(opcion != 'T') q = `select * from venta.control_caja cc where cc.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.control_caja cc`;
+  if(opcion != 'T') q = `select * from venta.control_caja cc where ${opcion} = '${id}';`;
+  if(opcion == 'ACTIVA') q = `select * from venta.control_caja cc where cc.estado = 'APERTURA' and cc.fid_sucursal = ${id} ;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -130,13 +131,13 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
 export const listarPedidos  = async  (datos, respuesta, next) => {
   const {opcion,id,id_sucursal} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.pedido p where p.activo=1`;
-  if(opcion != 'T') q = `select * from venta.pedido p where p.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select * from venta.pedido p`;
+  if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = '${id}';`;
   if(opcion == 'PEDIDOS') q = `select p.*,pd.*,pr.descripcion from venta.pedido p
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
     join venta.pedido_detalle pd on pd.fid_pedido =p.id_pedido
     join venta.producto pr on pr.id_producto =pd.fid_producto
-    where p.activo=1 and cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal};`;
+    where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal};`;
 
   try {
     const consulta = await da.consulta(q);
