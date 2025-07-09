@@ -136,6 +136,42 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
   }
 };
 
+//sucursal_producto
+export const listarSucursalProductos  = async  (datos, respuesta, next) => {
+  const {opcion,id} = datos.query
+  let q = ''
+  if(opcion == 'T') q = `select sp.*,p.descripcion producto, s.nombre sucursal
+    from venta.sucursal_producto sp
+    join venta.producto p on sp.fid_producto = p.id_producto and p.activo =1
+    join seguridad.sucursal s on s.id_sucursal = sp.fid_sucursal and s.activo =1;`;
+  if(opcion != 'T') q = `select sp.*,p.descripcion producto, s.nombre sucursal
+    from venta.sucursal_producto sp
+    join venta.producto p on sp.fid_producto = p.id_producto and p.activo =1
+    join seguridad.sucursal s on s.id_sucursal = sp.fid_sucursal and s.activo =1 where ${opcion} = '${id}';`;
+
+  try {
+    const consulta = await da.consulta(q);
+    respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
+
+export const crudSucursalProdcuto= async  (datos, respuesta, next) => {
+  const {operacion,id_sucursal_producto,fid_sucursal,fid_producto,existencia,precio,promocion} = datos.query;
+
+  let q = `select * from venta.pra_crud_sucursal_producto('${operacion}',${id_sucursal_producto},${fid_sucursal},${fid_producto},${existencia},${precio},${promocion});`;
+
+  const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
+
+  try {
+    const consulta = await da.consulta(mod);
+    respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
+
 //pedido
 export const listarPedidos  = async  (datos, respuesta, next) => {
   const {opcion,id,id_sucursal} = datos.query

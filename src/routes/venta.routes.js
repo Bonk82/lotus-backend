@@ -12,6 +12,8 @@ router.get('/crudIngreso/', venta.crudIngreso)
 router.get('/listarIngresoDetalles/', venta.listarIngresoDetalles)
 router.get('/crudIngresoDetalle/', venta.crudIngresoDetalle)
 
+router.get('/listarSucursalProductos/', venta.listarSucursalProductos)
+router.get('/crudSucursalProdcuto/', venta.crudSucursalProdcuto)
 router.get('/listarPedidos/', venta.listarPedidos)
 router.get('/crudPedido/', venta.crudPedido)
 router.get('/listarPedidoDetalles/', venta.listarPedidoDetalles)
