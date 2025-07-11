@@ -28,7 +28,7 @@ export const crudUsuario   = async  (datos, respuesta, next) => {
 
   let q = `select * from seguridad.pra_crud_usuario('${operacion}',${id_usuario},${fid_rol},${fid_sucursal},'${cuenta}','${hash}','${tipo_acceso}','${ci}','${fecha_nacimeinto}','${nombres}','${paterno}','${materno}','${correo}','${telefonos}','${estado}');`;
 
-  const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -58,7 +58,7 @@ export const crudClasificador   = async  (datos, respuesta, next) => {
 
   let q = `select * from seguridad.pra_crud_clasificador('${operacion}',${id_clasificador},'${grupo}',${orden},'${nombre}','${sub_grupo}');`;
 
-  const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -88,7 +88,7 @@ export const crudClasificador   = async  (datos, respuesta, next) => {
 
 //   let q = `select * from seguridad.pra_crud_cuenta('${operacion}',${id_cuenta},${fid_rol},'${nombre}','${correo}','${pass}','${tipo_acceso}',${fid_usuario},'${estado}');`;
 
-//   const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
+//   const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
   
 //   try {
 //     const consulta = await da.consulta(mod);
@@ -118,7 +118,7 @@ export const crudSucursal  = async  (datos, respuesta, next) => {
 
   let q = `select * from seguridad.pra_crud_sucursal('${operacion}',${id_sucursal},'${codigo}','${nombre}','${direccion}',${fid_encargado});`;
 
-  const mod = q.replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
   
   try {
     const consulta = await da.consulta(mod);
