@@ -20,7 +20,7 @@ export const crudComponente   = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_componente('${operacion}',${id_componente},${fid_producto_main},${fid_producto},'${unidad}',${cantidad},${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -60,7 +60,7 @@ export const crudControlCaja  = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_sucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},'${observaciones}','${estado}');`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -96,7 +96,7 @@ export const crudIngreso  = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_ingreso('${operacion}',${id_ingreso},${fid_proveedor},${fid_sucursal},'${motivo}','${fecha_ingreso}',${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -126,7 +126,7 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_ingreso_detalle('${operacion}',${id_ingreso_detalle},${fid_ingreso},${fid_producto},${cantidad},${precio_compra},${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -140,11 +140,11 @@ export const crudIngresoDetalle = async  (datos, respuesta, next) => {
 export const listarSucursalProductos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select sp.*,p.descripcion producto, s.nombre sucursal
+  if(opcion == 'T') q = `select sp.*,concat_ws(' - ',p.descripcion,p.unidad) producto, s.nombre sucursal
     from venta.sucursal_producto sp
     join venta.producto p on sp.fid_producto = p.id_producto and p.activo =1
     join seguridad.sucursal s on s.id_sucursal = sp.fid_sucursal and s.activo =1;`;
-  if(opcion != 'T') q = `select sp.*,p.descripcion producto, s.nombre sucursal
+  if(opcion != 'T') q = `select sp.*,concat_ws(' - ',p.descripcion,p.unidad) producto, s.nombre sucursal
     from venta.sucursal_producto sp
     join venta.producto p on sp.fid_producto = p.id_producto and p.activo =1
     join seguridad.sucursal s on s.id_sucursal = sp.fid_sucursal and s.activo =1 where ${opcion} = '${id}';`;
@@ -162,7 +162,7 @@ export const crudSucursalProdcuto= async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_sucursal_producto('${operacion}',${id_sucursal_producto},${fid_sucursal},${fid_producto},${existencia},${precio},${promocion});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -197,7 +197,7 @@ export const crudPedido = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}','${metodo_pago}','${codigo_sync}',${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -227,7 +227,7 @@ export const crudPedidoDetalle = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_producto},${cantidad},${descuento},${precio_unidad},'${fid_codigo_sync}');`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -274,7 +274,7 @@ export const crudProducto = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_producto('${operacion}',${id_producto},'${codigo}','${descripcion}','${unidad}','${capacidad}',${pedido_minimo},'${tipo_producto}','${grupo}',${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -288,14 +288,40 @@ export const crudProducto = async  (datos, respuesta, next) => {
 export const listarPromociones  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select p.*,s.nombre sucursal,pr.descripcion producto
-    from venta.promocion p join seguridad.sucursal s on s.id_sucursal =p.fid_sucursal
-    join venta.producto pr on pr.id_producto =p.fid_producto
-    where p.activo=1 and pr.activo =1;`;
-  if(opcion != 'T') q = `select p.*,s.nombre sucursal,pr.descripcion producto
-    from venta.promocion p join seguridad.sucursal s on s.id_sucursal =p.fid_sucursal
-    join venta.producto pr on pr.id_producto =p.fid_producto
-    where p.activo=1 and pr.activo =1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `SELECT p.*, s.nombre AS sucursal,
+    ( SELECT array_to_json(array_agg(row_to_json(det)))
+      FROM (SELECT pr.id_producto, pr.descripcion, pr.unidad
+            FROM venta.producto pr  
+            WHERE pr.activo = 1 
+            AND pr.id_producto = ANY(string_to_array(p.productos, ',')::int[])
+      ) det
+    ) AS productos
+    ,(SELECT string_agg(dias_map.nombre, ', ')
+        FROM unnest(string_to_array(p.dias, ',')) AS d
+        JOIN (VALUES ('1', 'Lunes'),('2', 'Martes'),('3', 'Miércoles'),
+                ('4', 'Jueves'),('5', 'Viernes'),('6', 'Sábado'),('7', 'Domingo')
+        ) AS dias_map(numero, nombre) ON d = dias_map.numero
+    ) AS dias_nombres
+    FROM venta.promocion p 
+    JOIN seguridad.sucursal s ON s.id_sucursal = p.fid_sucursal
+    WHERE p.activo = 1;`;
+  if(opcion != 'T') q = `SELECT p.*, s.nombre AS sucursal,
+    ( SELECT array_to_json(array_agg(row_to_json(det)))
+      FROM (SELECT pr.id_producto, pr.descripcion, pr.unidad
+            FROM venta.producto pr  
+            WHERE pr.activo = 1 
+            AND pr.id_producto = ANY(string_to_array(p.productos, ',')::int[])
+      ) det
+    ) AS productos
+    ,(SELECT string_agg(dias_map.nombre, ', ')
+      FROM unnest(string_to_array(p.dias, ',')) AS d
+      JOIN (VALUES ('1', 'Lunes'),('2', 'Martes'),('3', 'Miércoles'),
+              ('4', 'Jueves'),('5', 'Viernes'),('6', 'Sábado'),('7', 'Domingo')
+      ) AS dias_map(numero, nombre) ON d = dias_map.numero
+    ) AS dias_nombres
+    FROM venta.promocion p 
+    JOIN seguridad.sucursal s ON s.id_sucursal = p.fid_sucursal
+    WHERE p.activo = 1 and ${opcion} = '${id}';`;
 //TODO: hacer cambios para jalar prdouctos como un agregate, del id y descripcion
   try {
     const consulta = await da.consulta(q);
@@ -306,11 +332,11 @@ export const listarPromociones  = async  (datos, respuesta, next) => {
 };
 
 export const crudPromocion= async  (datos, respuesta, next) => {
-  const {operacion,id_promocion,nombre,dias,hora_inicio,hora_fin,grupo_producto,productos,cantidad,descuento,precio,usuario_registro} = datos.query;
+  const {operacion,id_promocion,fid_sucursal,nombre,dias,hora_inicio,hora_fin,grupo_producto,productos,cantidad,descuento,precio,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_promocion('${operacion}',${id_promocion},'${nombre}','${dias}','${hora_inicio}','${hora_fin}','${grupo_producto}','${productos}','${cantidad}',${descuento},${precio},${usuario_registro});`;
+  let q = `select * from venta.pra_crud_promocion('${operacion}',${id_promocion},${fid_sucursal},'${nombre}','${dias}','${hora_inicio}','${hora_fin}','${grupo_producto}','${productos}',${cantidad},${descuento},${precio},${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
@@ -340,7 +366,7 @@ export const crudProveedor = async  (datos, respuesta, next) => {
 
   let q = `select * from venta.pra_crud_proveedor('${operacion}',${id_proveedor},'${nombre}','${direccion}','${referencia}','${telefonos}','${cuenta}',${usuario_registro});`;
 
-  const mod = q.replace(/'undefined'/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`);
+  const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
     const consulta = await da.consulta(mod);
