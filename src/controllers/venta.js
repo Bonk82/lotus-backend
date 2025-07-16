@@ -38,13 +38,15 @@ export const listarControlCajas  = async  (datos, respuesta, next) => {
     from venta.control_caja cc
     join seguridad.usuario ui on ui.id_usuario =cc.fid_usuario_inicio 
     join seguridad.sucursal s on s.id_sucursal =cc.fid_sucursal
-    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre;`;
+    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre
+    order by cc.id_control_caja desc;`;
   if(opcion != 'T') q = `
     select cc.*,ui.cuenta usuario_inicio,s.nombre sucursal, uc.cuenta usuario_cierre
     from venta.control_caja cc
     join seguridad.usuario ui on ui.id_usuario =cc.fid_usuario_inicio 
     join seguridad.sucursal s on s.id_sucursal =cc.fid_sucursal
-    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre where ${opcion} = '${id}';`;
+    left join seguridad.usuario uc on uc.id_usuario = cc.fid_usuario_cierre where ${opcion} = '${id}'
+    order by cc.id_control_caja desc;`;
   if(opcion == 'ACTIVA') q = `select * from venta.control_caja cc where cc.estado = 'APERTURA' and cc.fid_sucursal = ${id} ;`;
 
   try {
