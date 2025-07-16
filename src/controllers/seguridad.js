@@ -8,6 +8,7 @@ export const listarUsuarios  = async  (datos, respuesta, next) => {
   let q = ''
   if(opcion == 'T') q = `select * from seguridad.usuario u`;
   if(opcion != 'T') q = `select * from seguridad.usuario u where ${opcion} = '${id}';`;
+  if(opcion == 'AA') q = `select u.id_usuario,u.cuenta,u.ci,u.fecha_nacimiento,u.telefonos,u.estado,u.fid_rol from seguridad.usuario u where (u.estado = 'ALTA' and u.fid_rol in(2,3,4)) or (u.estado = 'ASIGNADO' and u.fid_sucursal = ${id});`;
 
   try {
     const consulta = await da.consulta(q);
