@@ -10,5 +10,6 @@ router.get('/crudClasificador/', seguridad.crudClasificador)
 router.get('/listarSucursales/', seguridad.listarSucursales)
 router.get('/crudSucursal/', seguridad.crudSucursal)
 router.get('/listarMenu/', seguridad.listarMenu)
+router.get('/listarRoles/', seguridad.listarRoles)
 
 export default router;

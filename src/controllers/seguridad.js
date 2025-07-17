@@ -19,7 +19,7 @@ export const listarUsuarios  = async  (datos, respuesta, next) => {
 };
 
 export const crudUsuario   = async  (datos, respuesta, next) => {
-  let {operacion,id_usuario,fid_rol,fid_sucursal,cuenta,pass,tipo_acceso,ci,fecha_nacimeinto,nombres,paterno,materno,correo,telefonos,estado} = datos.query;
+  let {operacion,id_usuario,fid_rol,fid_sucursal,cuenta,pass,tipo_acceso,ci,fecha_nacimiento,nombres,paterno,materno,correo,telefonos,estado} = datos.query;
 
   let hash = null
   if(pass) hash = crypto.createHash('sha256').update(pass).digest('hex');
@@ -27,7 +27,7 @@ export const crudUsuario   = async  (datos, respuesta, next) => {
   if(!cuenta && operacion == 'I') cuenta = (`${nombres.split(' ')[0]}.${paterno}`).toUpperCase();
   if(fid_sucursal && operacion) tipo_acceso = 'INTERNO';
 
-  let q = `select * from seguridad.pra_crud_usuario('${operacion}',${id_usuario},${fid_rol},${fid_sucursal},'${cuenta}','${hash}','${tipo_acceso}','${ci}','${fecha_nacimeinto}','${nombres}','${paterno}','${materno}','${correo}','${telefonos}','${estado}');`;
+  let q = `select * from seguridad.pra_crud_usuario('${operacion}',${id_usuario},${fid_rol},${fid_sucursal},'${cuenta}','${hash}','${tipo_acceso}','${ci}','${fecha_nacimiento}','${nombres}','${paterno}','${materno}','${correo}','${telefonos}','${estado}');`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
@@ -73,8 +73,12 @@ export const crudClasificador   = async  (datos, respuesta, next) => {
 export const listarSucursales = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from seguridad.sucursal s where s.activo = 1 order by s.codigo`;
-  if(opcion != 'T') q = `select * from seguridad.sucursal s where s.activo = 1 and ${opcion} = '${id}' order by s.codigo;`;
+  if(opcion == 'T') q = `select s.*,u.cuenta encargado from seguridad.sucursal s
+         left join seguridad.usuario u on s.fid_encargado =u.id_usuario
+         where s.activo = 1 order by s.codigo;`;
+  if(opcion != 'T') q = `select s.*,u.cuenta encargado from seguridad.sucursal s
+         left join seguridad.usuario u on s.fid_encargado =u.id_usuario
+         where s.activo = 1 and ${opcion} = '${id}' order by s.codigo;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -107,6 +111,21 @@ export const listarMenu = async  (datos, respuesta, next) => {
   if(opcion != 'T') q = `select * from seguridad.rol_menu rm where ${opcion} = '${id}';`;
   if(opcion == 'ROL') q = `select m.id_menu,m.descripcion,m.ruta,m.nivel from seguridad.rol_menu rm
       join seguridad.menu m on rm.fid_menu = m.id_menu where rm.fid_rol =${id};`;
+
+  try {
+    const consulta = await da.consulta(q);
+    respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
+
+//roles
+export const listarRoles  = async  (datos, respuesta, next) => {
+  const {opcion,id} = datos.query
+  let q = ''
+  if(opcion == 'T') q = `select * from seguridad.rol r`;
+  if(opcion != 'T') q = `select * from seguridad.rol r where ${opcion} = '${id}';`;
 
   try {
     const consulta = await da.consulta(q);
