@@ -225,9 +225,9 @@ export const listarPedidoDetalles  = async  (datos, respuesta, next) => {
 };
 
 export const crudPedidoDetalle = async  (datos, respuesta, next) => {
-  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,cantidad,descuento,precio_unidad,fid_codigo_sync} = datos.query;
+  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,fid_promocion,cantidad,descuento,precio_unidad,fid_codigo_sync} = datos.query;
 
-  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_producto},${cantidad},${descuento},${precio_unidad},'${fid_codigo_sync}');`;
+  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_promocion},${fid_producto},${cantidad},${descuento},${precio_unidad},'${fid_codigo_sync}');`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
