@@ -12,6 +12,7 @@ export const login = async (datos, respuesta, next) => {
   var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}','${new_hash}');`;
   let newToken = null;
   try {
+    console.log(crypto.createHash('sha256').update(`${789456}#${'LIMS'}*`).digest('hex'))
     const consulta = await da(q);
     console.log("del login", consulta);
     if(consulta[0]){

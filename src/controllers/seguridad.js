@@ -6,9 +6,9 @@ import crypto from 'crypto'
 export const listarUsuarios  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from seguridad.usuario u`;
-  if(opcion != 'T') q = `select * from seguridad.usuario u where ${opcion} = '${id}';`;
-  if(opcion == 'AA') q = `select u.id_usuario,u.cuenta,u.ci,u.fecha_nacimiento,u.telefonos,u.estado,u.fid_rol from seguridad.usuario u where (u.estado = 'ALTA' and u.fid_rol in(2,3,4)) or (u.estado = 'ASIGNADO' and u.fid_sucursal = ${id});`;
+  if(opcion == 'T') q = `select * from seguridad.usuario u order by u.cuenta`;
+  if(opcion != 'T') q = `select * from seguridad.usuario u where ${opcion} = '${id}' order by u.cuenta;`;
+  if(opcion == 'AA') q = `select u.id_usuario,u.cuenta,u.ci,u.fecha_nacimiento,u.telefonos,u.estado,u.fid_rol from seguridad.usuario u where (u.estado = 'ALTA' and u.fid_rol in(2,3,4)) or (u.estado = 'ASIGNADO' and u.fid_sucursal = ${id}) order by u.cuenta;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -23,7 +23,7 @@ export const crudUsuario   = async  (datos, respuesta, next) => {
 
   let hash = null
   if(pass) hash = crypto.createHash('sha256').update(pass).digest('hex');
-  if(!pass && operacion == 'I') hash = crypto.createHash('sha256').update(`${ci}#${paterno}*`).digest('hex');
+  if(!pass && operacion == 'I') hash = crypto.createHash('sha256').update(`${ci}#${(paterno || '').toUpperCase()}*`).digest('hex');
   if(!cuenta && operacion == 'I') cuenta = (`${nombres.split(' ')[0]}.${paterno}`).toUpperCase();
   if(fid_sucursal && operacion) tipo_acceso = 'INTERNO';
 
