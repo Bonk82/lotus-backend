@@ -23,7 +23,7 @@ export const crudUsuario   = async  (datos, respuesta, next) => {
 
   let hash = null
   if(pass) hash = crypto.createHash('sha256').update(pass).digest('hex');
-  if(!pass && operacion == 'I') hash = crypto.createHash('sha256').update(`${ci}#${(paterno || '').toUpperCase()}*`).digest('hex');
+  if(!pass && operacion == 'I') hash = crypto.createHash('sha256').update(`${ci}#${(paterno || '').toLowerCase()}*`).digest('hex');
   if(!cuenta && operacion == 'I') cuenta = (`${nombres.split(' ')[0]}.${paterno}`).toUpperCase();
   if(fid_sucursal && operacion) tipo_acceso = 'INTERNO';
 

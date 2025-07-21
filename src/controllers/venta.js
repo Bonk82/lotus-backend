@@ -182,16 +182,16 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
   if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = '${id}';`;
   if(opcion == 'PEDIDOS') q = `select p.*
     ,(select array_to_json(array_agg(row_to_json(det)))
-      from (select pd.*, pr.descripcion producto, pm.nombre promocion
+      from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
         from venta.pedido_detalle pd
         left join venta.producto pr on pd.fid_producto = pr.id_producto
         left join venta.promocion pm on pd.fid_promocion = pm.id_promocion 
-        where pd.fid_pedido = p.id_pedido
+        where pd.fid_pedido = p.id_pedido order by 1
       ) det
-    )detalle
+    )consumo
     from venta.pedido p
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
-    where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal};`;
+    where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal} order by 1 desc;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -202,9 +202,9 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
 };
 
 export const crudPedido = async  (datos, respuesta, next) => {
-  const {operacion,id_pedido,fid_usuario,fid_control_caja,mesa,metodo_pago,codigo_sync,estado,usuario_registro} = datos.query;
+  const {operacion,id_pedido,fid_usuario,fid_control_caja,mesa,metodo_pago,estado,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}','${metodo_pago}','${codigo_sync}','${estado}',${usuario_registro});`;
+  let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}','${metodo_pago}','${estado}',${usuario_registro});`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
@@ -232,9 +232,9 @@ export const listarPedidoDetalles  = async  (datos, respuesta, next) => {
 };
 
 export const crudPedidoDetalle = async  (datos, respuesta, next) => {
-  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,fid_promocion,cantidad,descuento,precio_unidad,fid_codigo_sync} = datos.query;
+  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,fid_promocion,cantidad,descuento,precio_venta,fid_codigo_sync} = datos.query;
 
-  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_promocion},${fid_producto},${cantidad},${descuento},${precio_unidad},'${fid_codigo_sync}');`;
+  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_producto},${fid_promocion},${cantidad},${descuento},${precio_venta},'${fid_codigo_sync}');`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
@@ -314,7 +314,7 @@ export const listarPromociones  = async  (datos, respuesta, next) => {
     FROM venta.promocion p 
     JOIN seguridad.sucursal s ON s.id_sucursal = p.fid_sucursal
     WHERE p.activo = 1;`;
-  if(opcion != 'T') q = `SELECT p.*, s.nombre AS sucursal,
+  if(opcion == 'SUCURSAL') q = `SELECT p.*, s.nombre AS sucursal,
     ( SELECT array_to_json(array_agg(row_to_json(det)))
       FROM (SELECT pr.id_producto, pr.descripcion, pr.unidad
             FROM venta.producto pr  
@@ -330,7 +330,7 @@ export const listarPromociones  = async  (datos, respuesta, next) => {
     ) AS dias_nombres
     FROM venta.promocion p 
     JOIN seguridad.sucursal s ON s.id_sucursal = p.fid_sucursal
-    WHERE p.activo = 1 and ${opcion} = '${id}';`;
+    WHERE p.activo = 1 and p.fid_sucursal in (${id},5);`;
 //TODO: hacer cambios para jalar prdouctos como un agregate, del id y descripcion
   try {
     const consulta = await da.consulta(q);
