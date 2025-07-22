@@ -1,5 +1,5 @@
 import {consulta as da} from '../connection/connexPostgres.js'
-import crypto, { hash } from 'crypto'
+import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 
 export const login = async (datos, respuesta, next) => {
