@@ -18,6 +18,7 @@ export const consulta = async (consulta) =>{
   return new Promise(async (resolve, reject) => {
     let pool = new postgres.Pool(config);
     console.log('CONSULTA==>',consulta);
+    console.log('variables',process.env.DB_HOST,config)
     let client;
     try {
       client = await pool.connect();
@@ -26,8 +27,8 @@ export const consulta = async (consulta) =>{
     } catch (error) {
       reject(error)
     } finally{
-      client.release();
-      pool.end();
+      client?.release();
+      pool?.end();
     }
   })
 }
