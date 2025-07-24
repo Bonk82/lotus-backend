@@ -11,17 +11,18 @@ export const login = async (datos, respuesta, next) => {
   console.log("encriptado", hash);
   var q =`select * from seguridad.pr_login ('${operacion}','${user}','${hash}','${new_hash}');`;
   let newToken = null;
+  let ip = null;
   try {
     console.log(crypto.createHash('sha256').update(`${789456}#${'LIMS'}*`).digest('hex'))
     const consulta = await da(q);
     console.log("del login", consulta);
     if(consulta[0]){
       newToken = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60*60*14),cnx: consulta[0].id_con,id_rol: consulta[0].id_rol,usuario: consulta[0].id_usuario, sucursal: consulta[0].id_sucursal,cuenta:user, rol:consulta[0].rol}, process.env.TOKEN_PWD);
-      // consulta.push({ruta:newToken})
+      ip = datos.headers['x-forwarded-for'] || datos.socket.remoteAddress || null;
     }else{
       return respuesta.status(401).json({error: 'Usuario o contraseña incorrectos'});
     }
-    respuesta.status(200).send(newToken);
+    respuesta.status(200).send({newToken,ip});
   } catch (error) {
     next(error)
   }

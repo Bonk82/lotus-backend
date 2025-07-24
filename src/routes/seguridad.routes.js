@@ -11,5 +11,6 @@ router.get('/listarSucursales/', seguridad.listarSucursales)
 router.get('/crudSucursal/', seguridad.crudSucursal)
 router.get('/listarMenu/', seguridad.listarMenu)
 router.get('/listarRoles/', seguridad.listarRoles)
+router.get('/obtenerAPI/', seguridad.obtenerAPI)
 
 export default router;

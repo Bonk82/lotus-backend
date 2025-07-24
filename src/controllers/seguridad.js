@@ -89,9 +89,9 @@ export const listarSucursales = async  (datos, respuesta, next) => {
 };
 
 export const crudSucursal  = async  (datos, respuesta, next) => {
-  const {operacion,id_sucursal,codigo,nombre,direccion,fid_encargado} = datos.query;
+  const {operacion,id_sucursal,codigo,nombre,direccion,ip,fid_encargado} = datos.query;
 
-  let q = `select * from seguridad.pra_crud_sucursal('${operacion}',${id_sucursal},'${codigo}','${nombre}','${direccion}',${fid_encargado});`;
+  let q = `select * from seguridad.pra_crud_sucursal('${operacion}',${id_sucursal},'${codigo}','${nombre}','${direccion}','${ip}',${fid_encargado});`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
   
@@ -130,6 +130,16 @@ export const listarRoles  = async  (datos, respuesta, next) => {
   try {
     const consulta = await da.consulta(q);
     respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
+
+//obtener API
+export const obtenerAPI  = async  (req, res, next) => {
+  try {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    respuesta.status(200).json({ip});
   } catch (error) {
     next(error)
   }
