@@ -112,8 +112,20 @@ export const crudIngreso  = async  (datos, respuesta, next) => {
 export const listarIngresoDetalles  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
-  if(opcion == 'T') q = `select * from venta.ingreso_detalle id where id.activo=1`;
-  if(opcion != 'T') q = `select * from venta.ingreso_detalle id where id.activo=1 and ${opcion} = '${id}';`;
+  if(opcion == 'T') q = `select id.*, concat_ws(' ',p.descripcion,p.unidad) producto
+    ,concat_ws(' ',s.nombre,i.motivo,to_char(i.fecha_ingreso,'DD/MM/YYYY'))ingreso
+    from venta.ingreso_detalle id
+    join venta.ingreso i on i.id_ingreso =id.fid_ingreso
+    join seguridad.sucursal s on s.id_sucursal = i.fid_sucursal
+    join venta.producto p on p.id_producto =id.fid_producto
+    where id.activo=1;`;
+  if(opcion != 'T') q = `select id.*, concat_ws(' ',p.descripcion,p.unidad) producto
+    ,concat_ws(' ',s.nombre,i.motivo,to_char(i.fecha_ingreso,'DD/MM/YYYY'))ingreso
+    from venta.ingreso_detalle id
+    join venta.ingreso i on i.id_ingreso =id.fid_ingreso
+    join seguridad.sucursal s on s.id_sucursal = i.fid_sucursal
+    join venta.producto p on p.id_producto =id.fid_producto
+    where id.activo=1 and ${opcion} = ${id};`;
 
   try {
     const consulta = await da.consulta(q);
