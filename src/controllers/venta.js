@@ -191,7 +191,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
   const {opcion,id,id_sucursal} = datos.query
   let q = ''
   if(opcion == 'T') q = `select * from venta.pedido p`;
-  if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = '${id}';`;
+  if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = ${id};`;
   if(opcion == 'PEDIDOS') q = `select p.*
     ,(select array_to_json(array_agg(row_to_json(det)))
       from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
@@ -204,6 +204,17 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
     from venta.pedido p
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
     where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal} order by 1 desc;`;
+  if(opcion == 'CONFIRMADOS') q = `select p.*
+    ,(select array_to_json(array_agg(row_to_json(det)))
+      from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
+        from venta.pedido_detalle pd
+        left join venta.producto pr on pd.fid_producto = pr.id_producto
+        left join venta.promocion pm on pd.fid_promocion = pm.id_promocion 
+        where pd.fid_pedido = p.id_pedido order by 1
+      ) det
+    )consumo
+    from venta.pedido p
+    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id} order by 1 asc;`;
 
   try {
     const consulta = await da.consulta(q);
