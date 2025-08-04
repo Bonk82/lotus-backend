@@ -78,11 +78,11 @@ export const listarIngresos  = async  (datos, respuesta, next) => {
   let q = ''
   if(opcion == 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
     from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
-    join venta.proveedor p on p.id_proveedor =i.fid_proveedor
+    left join venta.proveedor p on p.id_proveedor =i.fid_proveedor
     where i.activo=1;`;
   if(opcion != 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
     from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
-    join venta.proveedor p on p.id_proveedor =i.fid_proveedor
+    left join venta.proveedor p on p.id_proveedor =i.fid_proveedor
     where i.activo=1 and ${opcion} = '${id}';`;
 
   try {
@@ -274,14 +274,14 @@ export const listarProductos  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
   let q = ''
   if(opcion == 'T') q = `select p.*,(select array_to_json(array_agg(row_to_json(det)))
-      from (select pd.descripcion item, c.cantidad , c.unidad ,c.id_componente
+      from (select c.*,pd.descripcion item
         from venta.componente c join venta.producto pd on c.fid_producto =pd.id_producto 
         where c.fid_producto_main = p.id_producto and c.activo =1 
       ) det
     )componentes
     from venta.producto p where p.activo=1 order by p.descripcion;`;
   if(opcion != 'T') q = `select p.*,(select array_to_json(array_agg(row_to_json(det)))
-      from (select pd.descripcion item, c.cantidad , c.unidad ,c.id_componente
+      from (select c.*, pd.descripcion item
         from venta.componente c join venta.producto pd on c.fid_producto =pd.id_producto 
         where c.fid_producto_main = p.id_producto and c.activo =1 
       ) det
