@@ -214,7 +214,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
       ) det
     )consumo
     from venta.pedido p
-    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id} order by 1 asc;`;
+    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id || null} order by 1 asc;`;
 
   try {
     const consulta = await da.consulta(q);
