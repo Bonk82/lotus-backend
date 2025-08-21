@@ -14,7 +14,7 @@ export const login = async (datos, respuesta, next) => {
   let newToken = null;
   // let ip = null;
   try {
-    console.log(crypto.createHash('sha256').update(`${789456}#${'LIMS'}*`).digest('hex'))
+    // console.log(crypto.createHash('sha256').update(`${789456}#${'LIMS'}*`).digest('hex'))
     const consulta = await da(q);
     console.log("del login", consulta);
     if(consulta[0]){
