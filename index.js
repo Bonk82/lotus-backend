@@ -21,6 +21,9 @@ app.use(tokenAuth);
 
 app.use(logger);//para activar el log de las consultas a la API
 
+// Servir carpeta de imágenes
+app.use("/uploads", express.static("uploads"));
+
 //ROUTES
 app.use(loginRoutes);
 app.use(seguridadRoutes);

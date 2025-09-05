@@ -11,6 +11,7 @@ router.get('/listarSucursales/', seguridad.listarSucursales)
 router.get('/crudSucursal/', seguridad.crudSucursal)
 router.get('/listarMenu/', seguridad.listarMenu)
 router.get('/listarRoles/', seguridad.listarRoles)
-router.get('/obtenerAPI/', seguridad.obtenerAPI)
+router.get('/obtenerIP/', seguridad.obtenerIP)
+router.post("/subirImagen", seguridad.upload.single("image"), seguridad.subirImagen);
 
 export default router;

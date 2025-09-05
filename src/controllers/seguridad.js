@@ -1,4 +1,5 @@
 
+import multer from 'multer';
 import * as da from '../connection/connexPostgres.js'
 import crypto from 'crypto'
 
@@ -143,12 +144,50 @@ export const listarRoles  = async  (datos, respuesta, next) => {
   }
 };
 
-//obtener API
-export const obtenerAPI  = async  (req, res, next) => {
+//obtener IP
+export const obtenerIP  = async  (req, res, next) => {
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     respuesta.status(200).json({ip});
   } catch (error) {
     next(error)
   }
+};
+
+// Carpeta donde se guardarán las imágenes
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // crea esta carpeta en tu proyecto
+  },
+  filename: (req, file, cb) => {
+    // cb(null, Date.now() + path.extname(file.originalname)); // nombre único
+    cb(null, file.originalname);
+  },
+});
+
+export const upload = multer({ storage,
+  limits: { fileSize: 1 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = [".jpg", ".jpeg", ".png", ".gif"];
+    if (!allowed.includes(path.extname(file.originalname).toLowerCase())) {
+      return cb(new Error("Tipo de archivo no permitido"));
+    }
+    cb(null, true);
+  }, });
+
+export const subirImagen = (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No se almacenó ningúna imagen" });
+  // res.json({ruta: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
+  res.json({ruta: `/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
+};
+
+export const obtenerImagen = (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(__dirname, 'uploads', filename);
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'Imagen no encontrada' });
+  }
+  res.sendFile(filePath);
 };
