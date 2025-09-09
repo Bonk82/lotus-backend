@@ -26,4 +26,6 @@ router.get('/crudPromocion/', venta.crudPromocion)
 router.get('/listarProveedores/', venta.listarProveedores)
 router.get('/crudProveedor/', venta.crudProveedor)
 
+router.get('/listarDashboard/', venta.listarDashboard)
+
 export default router;
