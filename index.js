@@ -9,6 +9,7 @@ import ventaRoutes from './src/routes/venta.routes.js';
 import logger from './src/middlewares/logReq.js';
 import {errorHandler as error} from './src/middlewares/errorHandler.js';
 import {tokenAuth} from './src/middlewares/seguridadToken.js';
+import path from "path";
 
 dotenv.config();
 const app = express();
@@ -22,7 +23,7 @@ app.use(tokenAuth);
 app.use(logger);//para activar el log de las consultas a la API
 
 // Servir carpeta de imágenes
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.resolve("src/uploads")));
 
 //ROUTES
 app.use(loginRoutes);

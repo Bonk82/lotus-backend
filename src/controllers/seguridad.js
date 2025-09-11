@@ -2,7 +2,7 @@
 import multer from 'multer';
 import * as da from '../connection/connexPostgres.js'
 import crypto from 'crypto'
-
+import path from "path";
 //usuarios
 export const listarUsuarios  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
@@ -157,11 +157,16 @@ export const obtenerIP  = async  (req, res, next) => {
 // Carpeta donde se guardarán las imágenes
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // crea esta carpeta en tu proyecto
+    cb(null, "src/uploads/"); // crea esta carpeta en tu proyecto
   },
   filename: (req, file, cb) => {
     // cb(null, Date.now() + path.extname(file.originalname)); // nombre único
-    cb(null, file.originalname);
+    console.log('multerdisk',req,file);
+    
+    const ext = path.extname(file.originalname); // conserva la extensión
+    const customName = req.body.customName || path.basename(file.originalname, ext);
+    cb(null, customName + ext);
+    // cb(null, file.originalname);
   },
 });
 
@@ -176,9 +181,10 @@ export const upload = multer({ storage,
   }, });
 
 export const subirImagen = (req, res) => {
+  console.log('esto manda',req.body,req.file);
   if (!req.file) return res.status(400).json({ error: "No se almacenó ningúna imagen" });
   // res.json({ruta: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
-  res.json({ruta: `/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
+  res.json({ruta: `src/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
 };
 
 export const obtenerImagen = (req, res) => {
