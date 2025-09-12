@@ -3,6 +3,7 @@ import multer from 'multer';
 import * as da from '../connection/connexPostgres.js'
 import crypto from 'crypto'
 import path from "path";
+import fs from 'fs';
 //usuarios
 export const listarUsuarios  = async  (datos, respuesta, next) => {
   const {opcion,id} = datos.query
@@ -161,7 +162,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     // cb(null, Date.now() + path.extname(file.originalname)); // nombre único
-    console.log('multerdisk',req,file);
+    console.log('multerdisk',req.body,file);
     
     const ext = path.extname(file.originalname); // conserva la extensión
     const customName = req.body.customName || path.basename(file.originalname, ext);
@@ -183,6 +184,18 @@ export const upload = multer({ storage,
 export const subirImagen = (req, res) => {
   console.log('esto manda',req.body,req.file);
   if (!req.file) return res.status(400).json({ error: "No se almacenó ningúna imagen" });
+  const oldPath = req.file.path; // ruta actual del archivo
+  const newPath = path.join(path.dirname(oldPath), req.body.customName + path.extname(req.file.originalname));
+  // Renombrar el archivo
+  fs.rename(oldPath, newPath, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error al renombrar el archivo');
+    }
+    // res.json({ message: 'Archivo subido y renombrado correctamente', filename: path.basename(newPath) });
+    console.log('archivo renombrado a',path.basename(newPath));
+    
+  });
   // res.json({ruta: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
   res.json({ruta: `src/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
 };

@@ -1,7 +1,9 @@
 import { Router } from "express";
 import * as seguridad from "../controllers/seguridad.js";
+import multer from 'multer';
 
 const router = Router();
+
 
 router.get('/listarUsuarios/', seguridad.listarUsuarios)
 router.get('/crudUsuario/', seguridad.crudUsuario)
