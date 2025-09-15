@@ -182,7 +182,7 @@ export const upload = multer({ storage,
   }, });
 
 export const subirImagen = (req, res) => {
-  console.log('esto manda',req.body,req.file);
+  // console.log('esto manda',req.body,req.file);
   if (!req.file) return res.status(400).json({ error: "No se almacenó ningúna imagen" });
   const oldPath = req.file.path; // ruta actual del archivo
   const newPath = path.join(path.dirname(oldPath), req.body.customName + path.extname(req.file.originalname));
@@ -193,8 +193,7 @@ export const subirImagen = (req, res) => {
       return res.status(500).send('Error al renombrar el archivo');
     }
     // res.json({ message: 'Archivo subido y renombrado correctamente', filename: path.basename(newPath) });
-    console.log('archivo renombrado a',path.basename(newPath));
-    
+    // console.log('archivo renombrado a',path.basename(newPath));
   });
   // res.json({ruta: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});
   res.json({ruta: `src/uploads/${req.file.filename}`,message:'Archivo subido correctamente'});

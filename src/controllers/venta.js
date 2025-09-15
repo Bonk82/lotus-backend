@@ -432,34 +432,36 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     join seguridad.sucursal s on c.fid_sucursal =s.id_sucursal
     left join venta.producto pr on pr.id_producto =pd.fid_producto
     left join venta.promocion pro on pro.id_promocion =pd.fid_promocion
-    where p.fecha_registro between '${f1}' and '${f2}'
+    where c.fecha between '${f1}' and '${f2} 23:59:59'
     group by s.nombre,s.codigo;`;
   if(opcion == 'PXSXH') q = `select s.nombre,s.codigo
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '17:00' and '20:00' ) h1
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '20:01' and '22:00' ) h2
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '22:01' and '00:00' ) h3
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '00:01' and '02:00' ) h4
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '02:01' and '04:00' ) h5
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '04:01' and '09:00' ) h6
+    , count(p.*)FILTER (WHERE c.fecha::time between '17:00' and '20:00' ) h1
+    , count(p.*)FILTER (WHERE c.fecha::time between '20:01' and '22:00' ) h2
+    , count(p.*)FILTER (WHERE c.fecha::time between '22:01' and '00:00' ) h3
+    , count(p.*)FILTER (WHERE c.fecha::time between '00:01' and '02:00' ) h4
+    , count(p.*)FILTER (WHERE c.fecha::time between '02:01' and '04:00' ) h5
+    , count(p.*)FILTER (WHERE c.fecha::time between '04:01' and '09:00' ) h6
     from venta.pedido_detalle pd
     join venta.pedido p on p.id_pedido =pd.fid_pedido
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
     join seguridad.sucursal s on c.fid_sucursal =s.id_sucursal
     left join venta.producto pr on pr.id_producto =pd.fid_producto
     left join venta.promocion pro on pro.id_promocion =pd.fid_promocion
-    where p.fecha_registro between '${f1}' and '${f2}'
+    where c.fecha between '${f1}' and '${f2} 23:59:59'
     group by s.nombre,s.codigo;`;
   if(opcion == 'CARDS') q = `select *,(x.ventas - x.compras) neto from (
     select 
     (select coalesce(sum(id.precio_compra),0)compras from venta.ingreso i
     join venta.ingreso_detalle id on i.id_ingreso =id.fid_ingreso
-    where i.fecha_ingreso between '${f1}' and '${f2}')
+    where i.fecha_ingreso between '${f1}' and '${f2} 23:59:59')
     ,(select coalesce(count(p.*),0)pedidos from venta.pedido p 
     join venta.pedido_detalle pd on p.id_pedido= pd.fid_pedido
-    where p.fecha_registro between '${f1}' and '${f2}')
+    join venta.control_caja c on c.id_control_caja =p.fid_control_caja
+    where c.fecha between '${f1}' and '${f2} 23:59:59')
     ,(select coalesce(sum(pd.precio_venta),0)ventas from venta.pedido p 
     join venta.pedido_detalle pd on p.id_pedido= pd.fid_pedido
-    where p.fecha_registro between '${f1}' and '${f2}'))x;`;
+    join venta.control_caja c on c.id_control_caja =p.fid_control_caja
+    where c.fecha between '${f1}' and '${f2} 23:59:59'))x;`;
   if(opcion == 'VXSXD') q = `SELECT 
         to_char(fecha_dia,'DD/MM/YYYY')dia,
         SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 1) as lt01,
@@ -479,7 +481,7 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     CROSS JOIN seguridad.sucursal s
     LEFT JOIN venta.control_caja c ON c.fid_sucursal = s.id_sucursal
     LEFT JOIN venta.pedido p ON p.fid_control_caja = c.id_control_caja 
-        AND DATE(p.fecha_registro) = fecha_dia
+        AND DATE(c.fecha) = fecha_dia
     LEFT JOIN venta.pedido_detalle pd ON pd.fid_pedido = p.id_pedido
     GROUP BY fecha_dia
     ORDER BY fecha_dia;`;
@@ -489,7 +491,7 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     join venta.pedido p on p.id_pedido =pd.fid_pedido
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
     left join venta.producto pr on pr.id_producto =pd.fid_producto
-    where p.fecha_registro between '${f1}' and '${f2}' and pr.id_producto is not null
+    where c.fecha between '${f1}' and '${f2} 23:59:59' and pr.id_producto is not null
     group by pr.descripcion
     union
     select pro.nombre,count(*)
@@ -497,7 +499,7 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     join venta.pedido p on p.id_pedido =pd.fid_pedido
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
     left join venta.promocion pro on pro.id_promocion =pd.fid_promocion
-    where p.fecha_registro between '${f1}' and '${f2}' and pro.id_promocion is not null
+    where c.fecha between '${f1}' and '${f2} 23:59:59' and pro.id_promocion is not null
     group by pro.nombre)
     order by 2 desc limit 10;`;
 
