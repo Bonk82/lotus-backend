@@ -435,12 +435,12 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     where c.fecha between '${f1}' and '${f2} 23:59:59'
     group by s.nombre,s.codigo;`;
   if(opcion == 'PXSXH') q = `select s.nombre,s.codigo
-    , count(p.*)FILTER (WHERE c.fecha::time between '17:00' and '20:00' ) h1
-    , count(p.*)FILTER (WHERE c.fecha::time between '20:01' and '22:00' ) h2
-    , count(p.*)FILTER (WHERE c.fecha::time between '22:01' and '00:00' ) h3
-    , count(p.*)FILTER (WHERE c.fecha::time between '00:01' and '02:00' ) h4
-    , count(p.*)FILTER (WHERE c.fecha::time between '02:01' and '04:00' ) h5
-    , count(p.*)FILTER (WHERE c.fecha::time between '04:01' and '09:00' ) h6
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '17:00' and '20:00' ) h1
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '20:01' and '22:00' ) h2
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '22:01' and '00:00' ) h3
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '00:01' and '02:00' ) h4
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '02:01' and '04:00' ) h5
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '04:01' and '09:00' ) h6
     from venta.pedido_detalle pd
     join venta.pedido p on p.id_pedido =pd.fid_pedido
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
@@ -464,14 +464,14 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     where c.fecha between '${f1}' and '${f2} 23:59:59'))x;`;
   if(opcion == 'VXSXD') q = `SELECT 
         to_char(fecha_dia,'DD/MM/YYYY')dia,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 1) as lt01,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 2) as lt02,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 3) as lt03,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 4) as lt04,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 6) as lt06,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 7) as lt07,
-        SUM(COALESCE(pd.precio_venta, 0)) FILTER (WHERE s.id_sucursal = 8) as lt08,
-        SUM(COALESCE(pd.precio_venta, 0)) as total_dia
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 1) as "LOTUS CLUB PRADO",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 2) as "LOTUS BAR",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 3) as "LOTUS SEPTIMA",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 4) as "LOTUS CLUB MIRAFLORES",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 6) as "THE JUNGLE CLUB",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 7) as "FOLKLORE CON ALTURA LP",
+        SUM(pd.precio_venta) FILTER (WHERE s.id_sucursal = 8) as "LA CASA DEL FRATERNO",
+        SUM(pd.precio_venta) as total_dia
     FROM 
         generate_series(
             '${f1}'::date, 
@@ -485,23 +485,25 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     LEFT JOIN venta.pedido_detalle pd ON pd.fid_pedido = p.id_pedido
     GROUP BY fecha_dia
     ORDER BY fecha_dia;`;
-  if(opcion == 'PMV') q = `select * from (
-    select pr.descripcion,count(*)
-    from venta.pedido_detalle pd
-    join venta.pedido p on p.id_pedido =pd.fid_pedido
-    join venta.control_caja c on c.id_control_caja =p.fid_control_caja
-    left join venta.producto pr on pr.id_producto =pd.fid_producto
-    where c.fecha between '${f1}' and '${f2} 23:59:59' and pr.id_producto is not null
-    group by pr.descripcion
-    union
-    select pro.nombre,count(*)
-    from venta.pedido_detalle pd
-    join venta.pedido p on p.id_pedido =pd.fid_pedido
-    join venta.control_caja c on c.id_control_caja =p.fid_control_caja
-    left join venta.promocion pro on pro.id_promocion =pd.fid_promocion
-    where c.fecha between '${f1}' and '${f2} 23:59:59' and pro.id_promocion is not null
-    group by pro.nombre)
-    order by 2 desc limit 10;`;
+  if(opcion == 'PMV') q = `SELECT jsonb_object_agg(descripcion, cantidad) as productos
+    FROM (
+    select * from (
+      select pr.descripcion,count(*) as cantidad
+      from venta.pedido_detalle pd
+      join venta.pedido p on p.id_pedido =pd.fid_pedido
+      join venta.control_caja c on c.id_control_caja =p.fid_control_caja
+      left join venta.producto pr on pr.id_producto =pd.fid_producto
+      where c.fecha between '${f1}' and '${f2} 23:59:59' and pr.id_producto is not null
+      group by pr.descripcion
+      union
+      select pro.nombre,count(*)
+      from venta.pedido_detalle pd
+      join venta.pedido p on p.id_pedido =pd.fid_pedido
+      join venta.control_caja c on c.id_control_caja =p.fid_control_caja
+      left join venta.promocion pro on pro.id_promocion =pd.fid_promocion
+      where c.fecha between '${f1}' and '${f2} 23:59:59' and pro.id_promocion is not null
+      group by pro.nombre)
+      order by 2 desc limit 6)data;`;
 
   try {
     const consulta = await da.consulta(q);
