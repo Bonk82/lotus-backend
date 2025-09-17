@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const tokenAuth = (req, res, next)=> {
-  const regex = /(login|signup|message|insert)/;
+  const regex = /(login|signup|message|uploads)/;
   if(regex.test(req.url)){
     next();
     return false;
