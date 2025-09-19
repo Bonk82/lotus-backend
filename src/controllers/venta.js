@@ -192,7 +192,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
   let q = ''
   if(opcion == 'T') q = `select * from venta.pedido p`;
   if(opcion != 'T') q = `select * from venta.pedido p where ${opcion} = ${id};`;
-  if(opcion == 'PEDIDOS') q = `select p.*
+  if(opcion == 'PEDIDOS') q = `select p.*,(select sum(x.precio_venta ) from venta.pedido_detalle x where x.fid_pedido =p.id_pedido) total
     ,(select array_to_json(array_agg(row_to_json(det)))
       from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
         from venta.pedido_detalle pd
@@ -435,12 +435,12 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     where c.fecha between '${f1}' and '${f2} 23:59:59'
     group by s.nombre,s.codigo;`;
   if(opcion == 'PXSXH') q = `select s.nombre,s.codigo
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '17:00' and '20:00' ) h1
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '20:01' and '22:00' ) h2
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '22:01' and '00:00' ) h3
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '00:01' and '02:00' ) h4
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '02:01' and '04:00' ) h5
-    , count(p.*)FILTER (WHERE p.fecha_registro::time between '04:01' and '09:00' ) h6
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '17:00' and '20:00' ) "17:00 a 20:00"
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '20:01' and '22:00' ) "20:01 a 22:00"
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '22:01' and '00:00' ) "22:01 a 00:00"
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '00:01' and '02:00' ) "00:01 a 02:00"
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '02:01' and '04:00' ) "02:01 a 04:00"
+    , count(p.*)FILTER (WHERE p.fecha_registro::time between '04:01' and '09:00' ) "04:01 a 09:00"
     from venta.pedido_detalle pd
     join venta.pedido p on p.id_pedido =pd.fid_pedido
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
