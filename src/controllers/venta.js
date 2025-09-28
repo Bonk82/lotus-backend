@@ -204,7 +204,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
     from venta.pedido p
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
     where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal} order by 1 desc;`;
-  if(opcion == 'CONFIRMADOS') q = `select p.*
+  if(opcion == 'CONFIRMADOS') q = `select p.*,u.cuenta
     ,(select array_to_json(array_agg(row_to_json(det)))
       from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
         from venta.pedido_detalle pd
@@ -214,6 +214,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
       ) det
     )consumo
     from venta.pedido p
+    join seguridad.usuario u on u.id_usuario = p.fid_usuario 
     where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id || null} order by 1 asc;`;
 
   try {
@@ -228,6 +229,8 @@ export const crudPedido = async  (datos, respuesta, next) => {
   const {operacion,id_pedido,fid_usuario,fid_control_caja,mesa,metodo_pago,estado,usuario_registro} = datos.query;
 
   let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}','${metodo_pago}','${estado}',${usuario_registro});`;
+
+  if(operacion == 'CONCILIAR') q = `update venta.pedido set estado='CONCILIADO' where id_pedido in (${id_pedido}) and fid_control_caja = ${fid_control_caja};`
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
