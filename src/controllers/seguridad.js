@@ -18,7 +18,7 @@ export const listarUsuarios  = async  (datos, respuesta, next) => {
     left join seguridad.rol r on r.id_rol =u.fid_rol
     left join seguridad.sucursal s on s.id_sucursal  = u.fid_sucursal
     order by u.cuenta where ${opcion} = '${id}' order by u.cuenta;`;
-  if(opcion == 'AA') q = `select u.id_usuario,u.cuenta,u.ci,u.fecha_nacimiento,u.telefonos,u.estado,u.fid_rol from seguridad.usuario u where (u.estado = 'ALTA' and u.fid_rol in(2,3,4)) or (u.estado = 'ASIGNADO' and u.fid_sucursal = ${id}) order by u.cuenta;`;
+  if(opcion == 'AA') q = `select u.id_usuario,u.cuenta,u.ci,u.fecha_nacimiento,u.telefonos,u.estado,u.fid_rol from seguridad.usuario u where (u.estado = 'ALTA' and u.fid_rol in(1,2,3,4)) or (u.estado = 'ASIGNADO' and u.fid_sucursal = ${id}) order by u.cuenta;`;
 
   try {
     const consulta = await da.consulta(q);
