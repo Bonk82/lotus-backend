@@ -203,8 +203,8 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
     )consumo
     from venta.pedido p
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja 
-    where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal} and p.estado != 'ANULADO' order by 1 desc;`;
-  if(opcion == 'CONTROL_CAJA') q = `select p.*,u.cuenta
+    where cc.estado ='APERTURA' and p.fid_usuario = ${id} and cc.fid_sucursal = ${id_sucursal} order by 1 desc;`;
+  if(opcion == 'CONFIRMADOS') q = `select p.*,u.cuenta
     ,(select array_to_json(array_agg(row_to_json(det)))
       from (select pd.*, pr.descripcion producto, pm.nombre promocion,concat(pr.descripcion,pm.nombre)nombre
         from venta.pedido_detalle pd
@@ -215,7 +215,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
     )consumo
     from venta.pedido p
     join seguridad.usuario u on u.id_usuario = p.fid_usuario 
-    where p.estado != 'ANULADO' and p.fid_control_caja = ${id || null} order by 1 asc;`;
+    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id || null} order by 1 asc;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -488,10 +488,10 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     LEFT JOIN venta.pedido_detalle pd ON pd.fid_pedido = p.id_pedido
     GROUP BY fecha_dia
     ORDER BY fecha_dia;`;
-  if(opcion == 'PMV') q = `SELECT jsonb_object_agg(descripcion, cantidad) as productos
+  if(opcion == 'PMV') q = `SELECT jsonb_object_agg(descripcion, cantidad_mv) as productos
     FROM (
     select * from (
-      select pr.descripcion,count(*) as cantidad
+      select pr.descripcion,count(*) as cantidad_mv
       from venta.pedido_detalle pd
       join venta.pedido p on p.id_pedido =pd.fid_pedido
       join venta.control_caja c on c.id_control_caja =p.fid_control_caja
