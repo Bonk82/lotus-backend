@@ -226,9 +226,9 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
 };
 
 export const crudPedido = async  (datos, respuesta, next) => {
-  const {operacion,id_pedido,fid_usuario,fid_control_caja,mesa,metodo_pago,estado,usuario_registro} = datos.query;
+  const {operacion,id_pedido,fid_usuario,fid_control_caja,mesa,monto_qr,monto_efectivo,monto_tarjeta,monto_vale,estado,usuario_registro} = datos.query;
 
-  let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}','${metodo_pago}','${estado}',${usuario_registro});`;
+  let q = `select * from venta.pra_crud_pedido('${operacion}',${id_pedido},${fid_usuario},${fid_control_caja},'${mesa}',${monto_qr},${monto_efectivo},${monto_tarjeta},${monto_vale},'${estado}',${usuario_registro});`;
 
   if(operacion == 'CONCILIAR') q = `update venta.pedido set estado='CONCILIADO' where id_pedido in (${id_pedido}) and fid_control_caja = ${fid_control_caja};`
 
@@ -258,9 +258,9 @@ export const listarPedidoDetalles  = async  (datos, respuesta, next) => {
 };
 
 export const crudPedidoDetalle = async  (datos, respuesta, next) => {
-  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,fid_promocion,cantidad,descuento,precio_venta,fid_codigo_sync} = datos.query;
+  const {operacion,id_pedido_detalle,fid_pedido,fid_producto,fid_mezclador,fid_promocion,cantidad,descuento,precio_venta,fid_codigo_sync} = datos.query;
 
-  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_producto},${fid_promocion},${cantidad},${descuento},${precio_venta},'${fid_codigo_sync}');`;
+  let q = `select * from venta.pra_crud_pedido_detalle('${operacion}',${id_pedido_detalle},${fid_pedido},${fid_producto},${fid_mezclador},${fid_promocion},${cantidad},${descuento},${precio_venta},'${fid_codigo_sync}');`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
@@ -292,9 +292,12 @@ export const listarProductos  = async  (datos, respuesta, next) => {
     from venta.producto p where p.activo=1 and ${opcion} = '${id}' order by p.descripcion;`;
   if(opcion == 'PEDIDO') q = `select p.id_producto ,p.descripcion,p.unidad,p.grupo
       ,sp.id_sucursal_producto,sp.existencia,sp.precio,sp.promocion
+      ,p2.id_producto id_pc, p2.descripcion mezclador,c.cantidad 
       from venta.producto p join venta.sucursal_producto sp
-      on sp.fid_producto =p.id_producto and sp.fid_sucursal = ${id}
-      where p.tipo_producto ='VENTA' and activo =1 order by p.grupo, p.descripcion;`;
+      on sp.fid_producto =p.id_producto and sp.fid_sucursal = 1
+      left join venta.componente c on c.fid_producto_main = p.id_producto and c.unidad ='BOTELLA' and c.activo =1
+      left join venta.producto p2 on p2.id_producto = c.fid_producto  
+      where p.tipo_producto ='VENTA' and p.activo =1 order by p.grupo, p.descripcion;`;
 
   try {
     const consulta = await da.consulta(q);
