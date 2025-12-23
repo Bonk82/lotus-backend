@@ -1,4 +1,5 @@
 import * as da from '../connection/connexPostgres.js'
+import carbone from 'carbone'
 
 //componente
 export const listarComponentes  = async  (datos, respuesta, next) => {
@@ -516,5 +517,46 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     respuesta.status(200).json(consulta);
   } catch (error) {
     next(error)
+  }
+};
+
+export const reportesVentas = async  (datos, respuesta, next) => {
+  const {tipo,id,f1,f2} = datos.query;
+  let miData = [];
+  const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
+  const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
+  const optionsReport = {
+    convertTo : convert,
+    reportName: 'Reporte01' + new Date().getTime() + '.pdf',
+    lang: 'es-es',
+    timezone:'America/Caracas',
+  };
+
+  const pathTemplate = `./src/modelosReportes/reporteProductos${tipo}.${extension}`;
+  let q = ``;
+  if(tipo == 1) q = `select * from venta.producto where activo = 1;`
+
+  try {
+    const consulta = await da.consulta(q);
+    console.log('la consulta reporte',consulta);
+    miData = consulta
+
+    carbone.render(
+      pathTemplate,
+      miData,
+      optionsReport,
+      (err, buffer, filename) => {
+        if (err) console.log(err);
+        if (!buffer) console.log(err);
+        console.log('el buff',buffer,filename);
+        respuesta.type('application/xlsx');
+        respuesta.setHeader('Content-disposition', `attachment; filename=${filename}.xlsx`);
+        respuesta.send(Buffer.from(buffer, 'binary'));
+        return respuesta;
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    respuesta.send(error);
   }
 };
