@@ -543,12 +543,6 @@ export const reportesVentas = async  (datos, respuesta, next) => {
     console.log('la consulta reporte',consulta);
     miData = consulta
 
-    carbone.set({
-      converter: {
-        path: '/usr/bin/soffice'
-      }
-    });
-
     carbone.render(
       pathTemplate,
       miData,

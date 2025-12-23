@@ -13,6 +13,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
+ENV SOFFICE_PATH=/usr/bin/soffice
+ENV HOME=/tmp
+RUN mkdir -p /tmp/libreoffice && chmod -R 777 /tmp/libreoffice
+
 COPY . .
 
 EXPOSE 3990
