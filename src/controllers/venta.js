@@ -524,19 +524,21 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   const {tipo,id,f1,f2} = datos.query;
   datos.setTimeout(300000);
   respuesta.setTimeout(300000);
+  console.log('el path',process.env.SOFFICE_PATH);
   let miData = [];
-  const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
-  const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
+  // const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
+  // const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
   const optionsReport = {
-    // convertTo : convert,
+    convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx',
     reportName: 'Reporte01' + new Date().getTime() + '.pdf',
     lang: 'es-es',
     timezone:'America/Caracas',
   };
 
-  const pathTemplate = `./src/modelosReportes/reporteProductos${tipo}.${extension}`;
+  const pathTemplate = `./src/modelosReportes/${tipo}`;
   let q = ``;
-  if(tipo == 1) q = `select * from venta.producto where activo = 1;`
+  if(tipo == 'listadoProductos.ods') q = `select * from venta.producto where activo = 1;`
+  if(tipo == 'comandaPedido.docx') q = `select * from venta.producto where activo = 1;`
 
   try {
     const consulta = await da.consulta(q);
