@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y \
     libnss3 \
     fonts-dejavu \
     fonts-liberation \
-    ttf-mscorefonts-installer \
     && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
 
