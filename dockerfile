@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y \
 # ====== 🔑 VARIABLES CLAVE PARA CARBONE ======
 ENV SOFFICE_PATH=/usr/bin/soffice
 ENV PATH="/usr/bin:${PATH}"
+ENV PATH="/usr/bin:/bin:/usr/local/bin:${PATH}"
+
 
 WORKDIR /app
 

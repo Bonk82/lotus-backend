@@ -528,7 +528,7 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
   const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
   const optionsReport = {
-    convertTo : convert,
+    // convertTo : convert,
     reportName: 'Reporte01' + new Date().getTime() + '.pdf',
     lang: 'es-es',
     timezone:'America/Caracas',
@@ -540,7 +540,7 @@ export const reportesVentas = async  (datos, respuesta, next) => {
 
   try {
     const consulta = await da.consulta(q);
-    console.log('la consulta reporte',consulta);
+    console.log('la consulta reporte',consulta[0]);
     miData = consulta
 
     carbone.render(
