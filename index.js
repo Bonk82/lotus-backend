@@ -10,6 +10,15 @@ import logger from './src/middlewares/logReq.js';
 import {errorHandler as error} from './src/middlewares/errorHandler.js';
 import {tokenAuth} from './src/middlewares/seguridadToken.js';
 import path from "path";
+import { exec } from 'child_process';
+
+exec('soffice --headless --version', (error, stdout, stderr) => {
+  if (error) {
+    console.error('Error ejecutando LibreOffice:', error);
+    return;
+  }
+  console.log('LibreOffice OK:', stdout || stderr);
+});
 
 dotenv.config();
 const app = express();
