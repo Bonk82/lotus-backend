@@ -522,6 +522,8 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
 
 export const reportesVentas = async  (datos, respuesta, next) => {
   const {tipo,id,f1,f2} = datos.query;
+  datos.setTimeout(300000);
+  respuesta.setTimeout(300000);
   let miData = [];
   const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
   const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
