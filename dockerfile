@@ -22,6 +22,10 @@ RUN apt-get update && apt-get install -y \
     && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
 
+# ====== 🔑 VARIABLES CLAVE PARA CARBONE ======
+ENV SOFFICE_PATH=/usr/bin/soffice
+ENV PATH="/usr/bin:${PATH}"
+
 WORKDIR /app
 
 COPY package*.json ./
