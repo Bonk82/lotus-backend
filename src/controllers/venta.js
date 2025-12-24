@@ -526,11 +526,9 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   respuesta.setTimeout(300000);
   console.log('el path',process.env.SOFFICE_PATH);
   let miData = [];
-  // const convert = ['01','02'].includes(tipo) ? 'xlsx':'pdf';//pdf
-  // const extension = ['01','02'].includes(tipo) ? 'ods':'docx';
+
   const optionsReport = {
-    convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx',
-    reportName: 'Reporte01' + new Date().getTime() + '.pdf',
+    // convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx',
     lang: 'es-es',
     timezone:'America/Caracas',
   };
@@ -550,17 +548,40 @@ export const reportesVentas = async  (datos, respuesta, next) => {
       miData,
       optionsReport,
       (err, buffer, filename) => {
-        if (err) console.log(err);
-        if (!buffer) console.log(err);
-        console.log('el buff',buffer,filename);
-        respuesta.type('application/xlsx');
-        respuesta.setHeader('Content-disposition', `attachment; filename=${filename}.xlsx`);
-        respuesta.send(Buffer.from(buffer, 'binary'));
-        return respuesta;
+        // if (err) console.log(err);
+        // if (!buffer) console.log(err);
+        // console.log('el buff',buffer,filename);
+        // respuesta.type('application/xlsx');
+        // respuesta.setHeader('Content-disposition', `attachment; filename=${filename}.xlsx`);
+        // respuesta.send(Buffer.from(buffer, 'binary'));
+        // return respuesta;
+        if (err) {
+          console.error('Error en Carbone:', err);
+          return respuesta.status(500).send(err);
+        }
+
+        // Detectar el tipo de contenido dinámicamente
+        // convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx'
+        
+        const isPdf = tipo.includes('docx');//optionsReport.convertTo === 'pdf';
+        const contentType = isPdf ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        const ext = isPdf ? 'pdf' : 'xlsx';
+
+        respuesta.setHeader('Content-Type', contentType);
+        respuesta.setHeader('Content-Disposition', `attachment; filename="reporte_${new Date().getTime()}.${ext}"`);
+        carbone.convert(buffer, {convertTo: isPdf ? 'pdf' : 'xlsx',extension:isPdf ? 'docx':'ods'}, function (err, result) {
+          if (err) {
+            console.error('Error en Convert:', err);
+            return respuesta.status(500).send(err);
+          }
+          // Enviar el buffer directamente
+          respuesta.send(result);
+        });
+
       }
     );
   } catch (error) {
-    console.log(error);
-    respuesta.send(error);
+    console.error('Error DB:', error);
+    respuesta.status(500).send(error);
   }
 };
