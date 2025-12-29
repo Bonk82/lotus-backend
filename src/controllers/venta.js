@@ -1,5 +1,6 @@
 import * as da from '../connection/connexPostgres.js'
 import carbone from 'carbone'
+import axios from "axios";
 
 //componente
 export const listarComponentes  = async  (datos, respuesta, next) => {
@@ -539,6 +540,9 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   if(tipo == 'comandaPedido.docx') q = `select * from venta.producto where activo = 1;`
 
   try {
+    const res_carbone = await axios.get(`${process.env.CARBONE_URL}/status`);
+    console.log('carbone',res_carbone);
+    
     const consulta = await da.consulta(q);
     console.log('la consulta reporte',consulta[0]);
     miData = consulta
