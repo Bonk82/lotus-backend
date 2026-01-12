@@ -32,10 +32,11 @@ export const login = async (datos, respuesta, next) => {
 }
 
 export const controlUsuario   = async  (datos, respuesta, next) => {
-  const {operacion,id_usuario,estado,fid_sucursal} = datos.query;
+  const {operacion,id_usuario,estado,fid_sucursal,pass} = datos.query;
 
   let q = ``
   if(operacion == 'H') `update seguridad.usuario set estado = '${estado}', fid_sucursal = ${fid_sucursal} where id_usuario = ${id_usuario};`;
+  // if(operacion == 'CP') `update seguridad.usuario set pass = _pass, fecha_modificado = now() where id_usuario = _id_usuario;`
 
   try {
     const consulta = await da.consulta(q);

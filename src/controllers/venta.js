@@ -82,11 +82,11 @@ export const listarIngresos  = async  (datos, respuesta, next) => {
   if(opcion == 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
     from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
     left join venta.proveedor p on p.id_proveedor =i.fid_proveedor
-    where i.activo=1;`;
+    where i.activo=1 order by i.id_ingreso desc;`;
   if(opcion != 'T') q = `select i.*,s.nombre sucursal,p.nombre proveedor
     from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
     left join venta.proveedor p on p.id_proveedor =i.fid_proveedor
-    where i.activo=1 and ${opcion} = '${id}';`;
+    where i.activo=1 and ${opcion} = '${id}' order by i.id_ingreso desc;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -464,7 +464,7 @@ export const listarDashboard  = async  (datos, respuesta, next) => {
     join venta.ingreso_detalle id on i.id_ingreso =id.fid_ingreso
     where i.fecha_ingreso between '${f1}' and '${f2} 23:59:59')
     ,(select coalesce(count(p.*),0)pedidos from venta.pedido p 
-    join venta.pedido_detalle pd on p.id_pedido= pd.fid_pedido
+    join venta.pedido_detalle pd on p.id_pedido= pd.fid_pedido and pd.precio_venta >0
     join venta.control_caja c on c.id_control_caja =p.fid_control_caja
     where c.fecha between '${f1}' and '${f2} 23:59:59')
     ,(select coalesce(sum(pd.precio_venta),0)ventas from venta.pedido p 
