@@ -1,6 +1,7 @@
 import * as da from '../connection/connexPostgres.js'
 import carbone from 'carbone'
 import axios from "axios";
+import fs from 'fs'
 
 //componente
 export const listarComponentes  = async  (datos, respuesta, next) => {
@@ -60,9 +61,9 @@ export const listarControlCajas  = async  (datos, respuesta, next) => {
 };
 
 export const crudControlCaja  = async  (datos, respuesta, next) => {
-  const {operacion,id_control_caja,fid_sucursal,fid_usuario_inicio,monto_inicio,fid_usuario_cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,monto_cierre_vale,observaciones,estado} = datos.query;
+  const {operacion,id_control_caja,fid_sucursal,fid_usuario_inicio,monto_inicio,fid_usuario_cierre,monto_cierre_qr,monto_cierre_tarjeta,monto_cierre_efectivo,monto_cierre_vale,sueldos, monto_caja,observaciones,estado} = datos.query;
 
-  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_sucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},${monto_cierre_vale},'${observaciones}','${estado}');`;
+  let q = `select * from venta.pra_crud_control_caja('${operacion}',${id_control_caja},${fid_sucursal},${fid_usuario_inicio},${monto_inicio},${fid_usuario_cierre},${monto_cierre_qr},${monto_cierre_tarjeta},${monto_cierre_efectivo},${monto_cierre_vale},${sueldos},${monto_caja},'${observaciones}','${estado}');`;
 
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
@@ -535,55 +536,76 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   };
 
   const pathTemplate = `./src/modelosReportes/${tipo}`;
+  let base64String = fs.readFileSync(pathTemplate, 'base64');
   let q = ``;
   if(tipo == 'listadoProductos.ods') q = `select * from venta.producto where activo = 1;`
   if(tipo == 'comandaPedido.docx') q = `select * from venta.producto where activo = 1;`
 
   try {
     const res_carbone = await axios.get(`${process.env.CARBONE_URL}/status`);
-    console.log('carbone',res_carbone);
+    console.log('carbone',res_carbone.data,base64String);
     
     const consulta = await da.consulta(q);
     console.log('la consulta reporte',consulta[0]);
-    miData = consulta
 
-    carbone.render(
-      pathTemplate,
-      miData,
-      optionsReport,
-      (err, buffer, filename) => {
-        // if (err) console.log(err);
-        // if (!buffer) console.log(err);
-        // console.log('el buff',buffer,filename);
-        // respuesta.type('application/xlsx');
-        // respuesta.setHeader('Content-disposition', `attachment; filename=${filename}.xlsx`);
-        // respuesta.send(Buffer.from(buffer, 'binary'));
-        // return respuesta;
-        if (err) {
-          console.error('Error en Carbone:', err);
-          return respuesta.status(500).send(err);
-        }
+    const isPdf = tipo.includes('docx');//optionsReport.convertTo === 'pdf';
+    const contentType = isPdf ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const ext = isPdf ? 'pdf' : 'xlsx';
 
-        // Detectar el tipo de contenido dinámicamente
-        // convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx'
+    miData = {
+      data:consulta,
+      convertTo: ext,
+      template: base64String,
+      converter: 'L',
+      lang: 'es-es',
+      timezone: 'America/Caracas',
+      hardRefresh: true
+    }
+
+    const result = await axios.post(`${process.env.CARBONE_URL}/render/template`, miData,{headers: {'Content-Type': 'application/json','carbone-version':5},params:{download:true}, responseType: 'arraybuffer' });
+    console.log('carbone',result.data,result);
+
+    respuesta.setHeader('Content-Type', contentType);
+    respuesta.setHeader('Content-Disposition', `attachment; filename="reporte_${new Date().getTime()}.${ext}"`);
+    respuesta.send(result.data);
+
+    // carbone.render(
+    //   pathTemplate,
+    //   miData,
+    //   optionsReport,
+    //   (err, buffer, filename) => {
+    //     // if (err) console.log(err);
+    //     // if (!buffer) console.log(err);
+    //     // console.log('el buff',buffer,filename);
+    //     // respuesta.type('application/xlsx');
+    //     // respuesta.setHeader('Content-disposition', `attachment; filename=${filename}.xlsx`);
+    //     // respuesta.send(Buffer.from(buffer, 'binary'));
+    //     // return respuesta;
+    //     if (err) {
+    //       console.error('Error en Carbone:', err);
+    //       return respuesta.status(500).send(err);
+    //     }
+
+    //     // Detectar el tipo de contenido dinámicamente
+    //     // convertTo : tipo.includes('docx') ?  'pdf' : 'xlsx'
         
-        const isPdf = tipo.includes('docx');//optionsReport.convertTo === 'pdf';
-        const contentType = isPdf ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        const ext = isPdf ? 'pdf' : 'xlsx';
+    //     const isPdf = tipo.includes('docx');//optionsReport.convertTo === 'pdf';
+    //     const contentType = isPdf ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    //     const ext = isPdf ? 'pdf' : 'xlsx';
 
-        respuesta.setHeader('Content-Type', contentType);
-        respuesta.setHeader('Content-Disposition', `attachment; filename="reporte_${new Date().getTime()}.${ext}"`);
-        carbone.convert(buffer, {convertTo: isPdf ? 'pdf' : 'xlsx',extension:isPdf ? 'docx':'ods'}, function (err, result) {
-          if (err) {
-            console.error('Error en Convert:', err);
-            return respuesta.status(500).send(err);
-          }
-          // Enviar el buffer directamente
-          respuesta.send(result);
-        });
+    //     respuesta.setHeader('Content-Type', contentType);
+    //     respuesta.setHeader('Content-Disposition', `attachment; filename="reporte_${new Date().getTime()}.${ext}"`);
+    //     carbone.convert(buffer, {convertTo: isPdf ? 'pdf' : 'xlsx',extension:isPdf ? 'docx':'ods'}, function (err, result) {
+    //       if (err) {
+    //         console.error('Error en Convert:', err);
+    //         return respuesta.status(500).send(err);
+    //       }
+    //       // Enviar el buffer directamente
+    //       respuesta.send(result);
+    //     });
 
-      }
-    );
+    //   }
+    // );
   } catch (error) {
     console.error('Error DB:', error);
     respuesta.status(500).send(error);
