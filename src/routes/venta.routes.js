@@ -28,5 +28,7 @@ router.get('/crudProveedor/', venta.crudProveedor)
 
 router.get('/listarDashboard/', venta.listarDashboard)
 router.get('/reportesVentas/', venta.reportesVentas)
+router.get('/reportesRender/', venta.reportesRender)
+router.get('/estadoMasivo/', venta.estadoMasivo)
 
 export default router;

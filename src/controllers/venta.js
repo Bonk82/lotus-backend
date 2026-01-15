@@ -218,7 +218,7 @@ export const listarPedidos  = async  (datos, respuesta, next) => {
     )consumo
     from venta.pedido p
     join seguridad.usuario u on u.id_usuario = p.fid_usuario 
-    where p.estado in ('CONFIRMADO','CONCILIADO') and p.fid_control_caja = ${id || null} order by 1 asc;`;
+    where p.estado in ('CONFIRMADO','IMPRESO','CONCILIADO') and p.fid_control_caja = ${id || null} order by 1 asc;`;
 
   try {
     const consulta = await da.consulta(q);
@@ -539,7 +539,19 @@ export const reportesVentas = async  (datos, respuesta, next) => {
   let base64String = fs.readFileSync(pathTemplate, 'base64');
   let q = ``;
   if(tipo == 'listadoProductos.ods') q = `select * from venta.producto where activo = 1;`
-  if(tipo == 'comandaPedido.docx') q = `select * from venta.producto where activo = 1;`
+  if(tipo == 'comandaPedido.docx') q = `select concat_ws(' - ',p.id_pedido,p.mesa)pedido,u.cuenta,to_char(p.fecha_registro,'DD/MM/YY HH:mm:ss') fecha
+    ,s.nombre sucursal,(select sum(x.precio_venta) from venta.pedido_detalle x where x.fid_pedido = p.id_pedido) total
+    ,(select array_to_json(array_agg(row_to_json(det)))
+      from (select pr.descripcion producto,pd.cantidad,pd.precio_venta 
+        from venta.pedido_detalle pd join venta.producto pr on pd.fid_producto = pr.id_producto  
+        where pd.fid_pedido =p.id_pedido 
+      ) det
+    )detalle
+    from venta.pedido p
+    join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja
+    join seguridad.usuario u on p.fid_usuario = u.id_usuario 
+    join seguridad.sucursal s on s.id_sucursal = cc.fid_sucursal
+    where p.id_pedido = 1;`
 
   try {
     const res_carbone = await axios.get(`${process.env.CARBONE_URL}/status`);
@@ -553,7 +565,7 @@ export const reportesVentas = async  (datos, respuesta, next) => {
     const ext = isPdf ? 'pdf' : 'xlsx';
 
     miData = {
-      data:consulta,
+      data:tipo.includes('.docx') ? consulta[0]: consulta,
       convertTo: ext,
       template: base64String,
       converter: 'L',
@@ -611,3 +623,56 @@ export const reportesVentas = async  (datos, respuesta, next) => {
     respuesta.status(500).send(error);
   }
 };
+
+export const reportesRender  = async  (datos, respuesta, next) => {
+  const {opcion,id} = datos.query
+  let q = ''
+  if(opcion == 'listadoProductos') q = `select * from venta.producto where activo = 1;`
+  if(opcion == 'comandaPedido') q = `select concat_ws(' - ',p.id_pedido,p.mesa)pedido,u.cuenta,to_char(p.fecha_registro,'DD/MM/YY HH:mm:ss') fecha, concat_ws('_',p.id_pedido,u.cuenta)nombre
+    ,s.nombre sucursal,(select sum(x.precio_venta) from venta.pedido_detalle x where x.fid_pedido = p.id_pedido) total
+    ,(select array_to_json(array_agg(row_to_json(det)))
+      from (select pr.descripcion producto,pd.cantidad,pd.precio_venta 
+        from venta.pedido_detalle pd join venta.producto pr on pd.fid_producto = pr.id_producto  
+        where pd.fid_pedido =p.id_pedido 
+      ) det
+    )detalle
+    from venta.pedido p
+    join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja
+    join seguridad.usuario u on p.fid_usuario = u.id_usuario 
+    join seguridad.sucursal s on s.id_sucursal = cc.fid_sucursal
+    where p.id_pedido = ${id};`
+    if(opcion == 'comandasPendientes') q = `select concat_ws(' - ',p.id_pedido,p.mesa)pedido,u.cuenta,to_char(p.fecha_registro,'DD/MM/YY HH:mm:ss') fecha, concat_ws('_',p.id_pedido,u.cuenta)nombre,p.id_pedido
+    ,s.nombre sucursal,(select sum(x.precio_venta) from venta.pedido_detalle x where x.fid_pedido = p.id_pedido) total
+    ,(select array_to_json(array_agg(row_to_json(det)))
+      from (select pr.descripcion producto,pd.cantidad,pd.precio_venta 
+        from venta.pedido_detalle pd join venta.producto pr on pd.fid_producto = pr.id_producto  
+        where pd.fid_pedido =p.id_pedido 
+      ) det
+    )detalle
+    from venta.pedido p
+    join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja
+    join seguridad.usuario u on p.fid_usuario = u.id_usuario 
+    join seguridad.sucursal s on s.id_sucursal = cc.fid_sucursal
+    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id};`
+
+  try {
+    const consulta = await da.consulta(q);
+    respuesta.status(200).json(consulta);
+  } catch (error) {
+    next(error)
+  }
+};
+
+export const estadoMasivo = async  (datos, respuesta, next) => {
+  const {opcion,id} = datos.query;
+
+  let q = `update venta.pedido set estado='${opcion}' where id_pedido in (${id});`;
+
+  try {
+    const consulta = await da.consulta(q);
+    respuesta.status(200).json({estado:'ok',message: 'Estado actualizado correctamente'});
+  } catch (error) {
+    next(error)
+  }
+};
+
