@@ -87,6 +87,11 @@ export const listarIngresos  = async  (datos, respuesta, next) => {
     from venta.ingreso i join seguridad.sucursal s on i.fid_sucursal =s.id_sucursal
     left join venta.proveedor p on p.id_proveedor =i.fid_proveedor
     where i.activo=1 and ${opcion} = '${id}' order by i.id_ingreso desc;`;
+  if(opcion == 'CORTESIAS') q = `select i.motivo,id.fid_producto, id.cantidad, p.descripcion producto,id.id_ingreso_detalle 
+    from venta.ingreso i join venta.ingreso_detalle id on id.fid_ingreso =i.id_ingreso 
+    join venta.producto p on p.id_producto =id.fid_producto 
+    where i.motivo ilike '% - ' || '${id}' || '%'
+    order by i.id_ingreso `;
 
   try {
     const consulta = await da.consulta(q);
