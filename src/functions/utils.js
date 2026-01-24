@@ -1,4 +1,5 @@
 import { consulta as da } from "../connection/connexPostgres.js";
+import crypto from 'crypto'
 
 /************Generador Dinamico de CRUDS Postgres */
 export const generarCRUDPostgres = async function (req, res, next) {
@@ -128,4 +129,19 @@ const armarCRUD = (campos, esquema, tabla) => {
       resolve(armado);
     }
   });
+};
+
+export const generarHash  = async  (datos, respuesta, next) => {
+  const {opcion,cadena,hash} = datos.query
+  let newHash = '';
+  try {
+  if(opcion == 'GENERAR') newHash = crypto.createHash('sha256').update(cadena).digest('hex');
+  if(opcion == 'VALIDAR') {
+    const cadHash = crypto.createHash('sha256').update(cadena).digest('hex');
+    newHash = (cadHash === hash) ? true : false;
+  }
+    respuesta.status(200).json({newHash});
+  } catch (error) {
+    next(error)
+  }
 };

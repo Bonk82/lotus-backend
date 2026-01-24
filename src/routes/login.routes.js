@@ -8,5 +8,6 @@ const router = Router();
 router.get('/login/', login.login)
 router.get('/generarcrud/', utils.generarCRUDPostgres)
 router.get('/controlUsuario/', login.controlUsuario)
+router.get('/generarhash/', utils.generarHash)
 
 export default router;

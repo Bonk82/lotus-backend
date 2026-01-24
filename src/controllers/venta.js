@@ -240,6 +240,8 @@ export const crudPedido = async  (datos, respuesta, next) => {
 
   if(operacion == 'CONCILIAR') q = `update venta.pedido set estado='CONCILIADO' where id_pedido in (${id_pedido}) and fid_control_caja = ${fid_control_caja};`
 
+  if(operacion == 'IMPRESO') q = `update venta.pedido set estado='IMPRESO' where id_pedido in (${id_pedido});`
+
   const mod = q.replace(/undefined/gi,`null`).replace(/'null'/gi,`null`).replace(/''/g,`null`).replace(/,,/g,`,null,`);
 
   try {
@@ -658,7 +660,7 @@ export const reportesRender  = async  (datos, respuesta, next) => {
     join venta.control_caja cc on cc.id_control_caja = p.fid_control_caja
     join seguridad.usuario u on p.fid_usuario = u.id_usuario 
     join seguridad.sucursal s on s.id_sucursal = cc.fid_sucursal
-    where p.estado = 'CONFIRMADO' and p.fid_control_caja = ${id};`
+    where p.estado = 'CONFIRMADO' and s.id_sucursal = ${id};`
 
   try {
     const consulta = await da.consulta(q);
